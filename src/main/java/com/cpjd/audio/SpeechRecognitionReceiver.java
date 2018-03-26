@@ -1,0 +1,127 @@
+package com.cpjd.audio;
+
+import com.google.cloud.speech.v1.*;
+import com.google.protobuf.ByteString;
+import io.grpc.internal.IoUtils;
+import net.dv8tion.jda.core.audio.AudioReceiveHandler;
+import net.dv8tion.jda.core.audio.CombinedAudio;
+import net.dv8tion.jda.core.audio.UserAudio;
+
+import javax.sound.sampled.AudioFileFormat;
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.List;
+
+/**
+ * SpeechRecognitionReceiver is an implementation of AudioReceiverHandler in the JDA
+ * library. It will listen into a particular Discord voice channel and run speech
+ * recognition on the received audio.
+ *
+ * @version 1
+ * @author Will Davies
+ */
+public class SpeechRecognitionReceiver implements AudioReceiveHandler {
+
+    /**
+     * The bot will not process audio as a command until it hears it's name. Specify it's name here, make sure it's something that can be easily recognized
+     */
+    private String botName;
+
+    /**
+     * This stores the current audio sample, this is the raw audio data that the bot will be processing.
+     */
+    private byte[] pcm;
+
+    /**
+     * The size of chunks, in seconds, to analyze for the keyword
+     */
+    private static final int KEYWORD_SAMPLE_SIZE = 5;
+
+    private boolean listening;
+
+    /**
+     * Creates a SpeechRecognitionReceiver, this class will listen to audio in a Discord
+     * channel and run speech recognition on it.
+     * @param botName The bot will not process audio as a command until it hears it's name. Specify it's name here, make sure it's something that can be easily recognized
+     */
+    public SpeechRecognitionReceiver(String botName) {
+        this.botName = botName;
+    }
+
+    @Override
+    public boolean canReceiveCombined() {
+        return true;
+    }
+
+    @Override
+    public boolean canReceiveUser() {
+        return false;
+    }
+
+    @Override
+    public void handleCombinedAudio(CombinedAudio combinedAudio) {
+        byte[] received = combinedAudio.getAudioData(1.0);
+        if(pcm == null) pcm = new byte[received.length];
+        else {
+            byte[] newPacket = new byte[pcm.length + received.length];
+            System.arraycopy(pcm, 0, newPacket, 0, pcm.length);
+            System.arraycopy(received, 0, newPacket, pcm.length, received.length);
+            pcm = newPacket;
+
+            /*
+             * If the bot is listening for commands, detect if the most recent packet is mostly silence,
+             * if so, process the command.
+             */
+        }
+
+        if(!listening && pcm.length >= 192000 * KEYWORD_SAMPLE_SIZE) {
+            AudioFormat target = new AudioFormat(16000f, 16, 1, true, false);
+            AudioInputStream is = AudioSystem.getAudioInputStream(target, new AudioInputStream(new ByteArrayInputStream(pcm), AudioReceiveHandler.OUTPUT_FORMAT, pcm.length));
+
+            try {
+                AudioSystem.write(is, AudioFileFormat.Type.WAVE, new File("C:\\Users\\Will Davies\\Downloads\\filename.wav"));
+                String speech = speechRecognition(IoUtils.toByteArray(new FileInputStream(new File("C:\\Users\\Will Davies\\Downloads\\filename.wav"))));
+                if(speech.contains(botName)) {
+                    listening = true;
+                }
+
+
+            } catch(Exception e) {
+                e.printStackTrace();
+            }
+
+            pcm = null;
+        }
+    }
+
+    public static String speechRecognition(byte[] pcm) throws Exception {
+        try (SpeechClient speech = SpeechClient.create()) {
+            ByteString audioBytes = ByteString.copyFrom(pcm);
+
+            // Configure request with local raw PCM audio
+            RecognitionConfig config = RecognitionConfig.newBuilder()
+                    .setEncoding(RecognitionConfig.AudioEncoding.LINEAR16)
+                    .setLanguageCode("en-US")
+                    .setSampleRateHertz(16000)
+                    .build();
+            RecognitionAudio audio = RecognitionAudio.newBuilder()
+                    .setContent(audioBytes)
+                    .build();
+
+            // Use blocking call to get audio transcript
+            RecognizeResponse response = speech.recognize(config, audio);
+            List<SpeechRecognitionResult> results = response.getResultsList();
+
+            return results.get(0).getAlternativesList().get(0).getTranscript();
+        }
+    }
+
+    @Override
+    public void handleUserAudio(UserAudio userAudio) {
+
+    }
+}

@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: io.grpc:grpc-auth:1.7.0">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/io.grpc/grpc-auth/1.7.0/7c7f0b0f8816657cdcfd654f17b866fd77b1546d/grpc-auth-1.7.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/io.grpc/grpc-auth/1.7.0/9d1a722a3d02bbcd05fa30326281e6813911a7f3/grpc-auth-1.7.0-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
