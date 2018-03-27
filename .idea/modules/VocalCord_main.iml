@@ -13,6 +13,8 @@
     <orderEntry type="library" name="Gradle: net.dv8tion:JDA:3.5.1_339" level="project" />
     <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.2.31" level="project" />
     <orderEntry type="library" name="Gradle: com.google.cloud:google-cloud-speech:0.32.0-alpha" level="project" />
+    <orderEntry type="library" name="Gradle: edu.cmu.sphinx:sphinx4-core:5prealpha-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Gradle: edu.cmu.sphinx:sphinx4-data:5prealpha-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Gradle: com.google.cloud:google-cloud-core-grpc:1.14.0" level="project" />
     <orderEntry type="library" name="Gradle: com.google.cloud:google-cloud-core:1.14.0" level="project" />
     <orderEntry type="library" name="Gradle: com.google.api:gax-grpc:1.15.0" level="project" />
@@ -42,6 +44,7 @@
     <orderEntry type="library" name="Gradle: io.netty:netty-tcnative-boringssl-static:2.0.6.Final" level="project" />
     <orderEntry type="library" name="Gradle: com.google.api.grpc:proto-google-cloud-speech-v1beta1:0.1.26" level="project" />
     <orderEntry type="library" name="Gradle: com.google.api.grpc:proto-google-cloud-speech-v1:0.1.26" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.commons:commons-math3:3.2" level="project" />
     <orderEntry type="library" name="Gradle: com.squareup.okio:okio:1.13.0" level="project" />
     <orderEntry type="library" name="Gradle: org.jetbrains:annotations:13.0" level="project" />
     <orderEntry type="library" name="Gradle: com.google.protobuf:protobuf-java-util:3.4.0" level="project" />

@@ -34,7 +34,7 @@ public class Bot extends ListenerAdapter {
 
     private void summon(VoiceChannel channel) {
         AudioManager manager = channel.getGuild().getAudioManager();
-        manager.setReceivingHandler(new SpeechRecognitionReceiver("Bot"));
+        manager.setReceivingHandler(new SpeechRecognitionReceiver("Hey JukeBot"));
         manager.setSendingHandler(new SilenceAudioSendHandler());
         manager.openAudioConnection(channel);
     }

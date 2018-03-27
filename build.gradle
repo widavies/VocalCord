@@ -7,6 +7,7 @@ sourceCompatibility = 1.8
 
 repositories {
     mavenCentral()
+    maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
     jcenter()
 }
 
@@ -15,6 +16,8 @@ dependencies {
     compile 'net.dv8tion:JDA:3.5.1_339'
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     compile 'com.google.cloud:google-cloud-speech:0.32.0-alpha'
+    compile group: 'edu.cmu.sphinx', name: 'sphinx4-core', version:'5prealpha-SNAPSHOT'
+    compile group: 'edu.cmu.sphinx', name: 'sphinx4-data', version:'5prealpha-SNAPSHOT'
 }
 buildscript {
     ext.kotlin_version = '1.2.31'

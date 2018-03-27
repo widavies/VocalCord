@@ -2,6 +2,9 @@ package com.cpjd.audio;
 
 import com.google.cloud.speech.v1.*;
 import com.google.protobuf.ByteString;
+import edu.cmu.sphinx.api.Configuration;
+import edu.cmu.sphinx.api.SpeechResult;
+import edu.cmu.sphinx.api.StreamSpeechRecognizer;
 import io.grpc.internal.IoUtils;
 import net.dv8tion.jda.core.audio.AudioReceiveHandler;
 import net.dv8tion.jda.core.audio.CombinedAudio;
@@ -14,7 +17,9 @@ import javax.sound.sampled.AudioSystem;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * SpeechRecognitionReceiver is an implementation of AudioReceiverHandler in the JDA
@@ -39,9 +44,11 @@ public class SpeechRecognitionReceiver implements AudioReceiveHandler {
     /**
      * The size of chunks, in seconds, to analyze for the keyword
      */
-    private static final int KEYWORD_SAMPLE_SIZE = 5;
+    private static final int KEYWORD_SAMPLE_SIZE = 3;
 
     private boolean listening;
+
+    private StreamSpeechRecognizer recognizer;
 
     /**
      * Creates a SpeechRecognitionReceiver, this class will listen to audio in a Discord
@@ -50,6 +57,28 @@ public class SpeechRecognitionReceiver implements AudioReceiveHandler {
      */
     public SpeechRecognitionReceiver(String botName) {
         this.botName = botName;
+
+        Configuration configuration = new Configuration();
+
+        configuration.setAcousticModelPath("resource:/edu/cmu/sphinx/models/en-us/en-us");
+        configuration.setDictionaryPath("resource:/edu/cmu/sphinx/models/en-us/cmudict-en-us.dict");
+        configuration.setLanguageModelPath("resource:/edu/cmu/sphinx/models/en-us/en-us.lm.bin");
+        configuration.setGrammarPath("file:src");
+        configuration.setGrammarName("hello");
+        configuration.setUseGrammar(true);
+
+        try {
+            recognizer = new StreamSpeechRecognizer(configuration);
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+
+        Logger cmRootLogger = Logger.getLogger("default.config");
+        cmRootLogger.setLevel(java.util.logging.Level.OFF);
+        String conFile = System.getProperty("java.util.logging.config.file");
+        if (conFile == null) {
+            System.setProperty("java.util.logging.config.file", "ignoreAllSphinx4LoggingOutput");
+        }
     }
 
     @Override
@@ -84,11 +113,9 @@ public class SpeechRecognitionReceiver implements AudioReceiveHandler {
 
             try {
                 AudioSystem.write(is, AudioFileFormat.Type.WAVE, new File("C:\\Users\\Will Davies\\Downloads\\filename.wav"));
-                String speech = speechRecognition(IoUtils.toByteArray(new FileInputStream(new File("C:\\Users\\Will Davies\\Downloads\\filename.wav"))));
-                if(speech.contains(botName)) {
-                    listening = true;
-                }
+                byte[] data = IoUtils.toByteArray(new FileInputStream(new File("C:\\Users\\Will Davies\\Downloads\\filename.wav")));
 
+                System.out.println("Was wakeup phrase said: "+wasWakeupSaid(data));
 
             } catch(Exception e) {
                 e.printStackTrace();
@@ -118,6 +145,17 @@ public class SpeechRecognitionReceiver implements AudioReceiveHandler {
 
             return results.get(0).getAlternativesList().get(0).getTranscript();
         }
+    }
+
+    private boolean wasWakeupSaid(byte[] pcm) throws Exception {
+        recognizer.startRecognition(new ByteArrayInputStream(pcm));
+        SpeechResult result;
+        while ((result = recognizer.getResult()) != null) {
+            System.out.format("Hypothesis: %s\n", result.getHypothesis());
+            if(result.getHypothesis().toLowerCase().contains(botName.toLowerCase())) return true;
+        }
+        recognizer.stopRecognition();
+        return false;
     }
 
     @Override
