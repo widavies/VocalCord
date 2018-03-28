@@ -16,9 +16,11 @@ voice commands, you shouldn't have too much of a problem fitting in this 60 minu
 3) Make sure Kotlin is installed by adding ```compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"``` to your build.gradle
 Note: Kotlin is only used for a small audio fix, not for core library, so you don't need to know Kotlin to use this library.
 4) Make sure CMUSphinx is installed by adding:  
-```compile group: 'edu.cmu.sphinx', name: 'sphinx4-core', version:'5prealpha-SNAPSHOT'
-    compile group: 'edu.cmu.sphinx', name: 'sphinx4-data', version:'5prealpha-SNAPSHOT'```  
-    to your build.gradle
+```
+compile group: 'edu.cmu.sphinx', name: 'sphinx4-core', version:'5prealpha-SNAPSHOT'
+compile group: 'edu.cmu.sphinx', name: 'sphinx4-data', version:'5prealpha-SNAPSHOT'
+```
+to your build.gradle
 5) [Setup an authentication](https://cloud.google.com/speech/docs/reference/libraries) token for Google Cloud Speech API, you'll need to export this to the path
 6) VocalCord is a library to assist you during bot creation, it's not a standalone bot. Thus, I'm assuming you already have a Discord bot token.
 
