@@ -1,7 +1,7 @@
 package com.cpjd.main;
 
-import com.cpjd.audio.SilenceAudioSendHandler;
-import com.cpjd.audio.SpeechRecognitionReceiver;
+import com.cpjd.speechGeneration.SilenceAudioSendHandler;
+import com.cpjd.speechRecognition.SpeechReceiver;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.audio.AudioSendHandler;
@@ -34,7 +34,7 @@ public class Bot extends ListenerAdapter {
 
     private void summon(VoiceChannel channel) {
         AudioManager manager = channel.getGuild().getAudioManager();
-        manager.setReceivingHandler(new SpeechRecognitionReceiver("Hey JukeBot"));
+        manager.setReceivingHandler(new SpeechReceiver("Hey JukeBot"));
         manager.setSendingHandler(new SilenceAudioSendHandler());
         manager.openAudioConnection(channel);
     }

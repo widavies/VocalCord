@@ -1,4 +1,4 @@
-package com.cpjd.audio
+package com.cpjd.speechGeneration
 
 import net.dv8tion.jda.core.audio.AudioSendHandler
 import java.util.*
