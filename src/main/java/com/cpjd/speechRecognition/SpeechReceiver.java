@@ -9,6 +9,7 @@ import io.grpc.internal.IoUtils;
 import net.dv8tion.jda.core.audio.AudioReceiveHandler;
 import net.dv8tion.jda.core.audio.CombinedAudio;
 import net.dv8tion.jda.core.audio.UserAudio;
+import net.dv8tion.jda.core.entities.User;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
@@ -20,7 +21,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 /**
- * SpeechReceiver is an implementation of AudioReceiveHandler in the JDA library. This
+ * SpeechReceiver is an implementation of {@link AudioReceiveHandler} in the JDA library. This
  * handler will receive raw voice data from Discord in the form of PCM (pulse code modulation).
  * This data is scanned in small chunks for the wakeup phrase, if detected, the class will start listening
  * to speechRecognition input until it detects silence. The command will then be recognized and returned as a String via
@@ -37,7 +38,7 @@ public class SpeechReceiver implements AudioReceiveHandler {
     /*
      *
      * Configuration settings
-     * Use the construction to set these or use setters
+     * Use the constructor to set these or use setters
      *
      */
     /**
@@ -62,15 +63,15 @@ public class SpeechReceiver implements AudioReceiveHandler {
     private boolean combinedAudio;
 
     /**
-     * If true, the bot will play it's own wakeup "boop" noise. You can disable this an implement your own if you'd like.
-     * If you implement your own, you'll have to use JDA technologies or use the SpeechSender utility in VocalCord.
-     */
-    private boolean playBoop;
-
-    /**
      * Wakeup sample size (seconds). This is the number of seconds to include in wakeup phrase speechRecognition chunk recognition.
      */
     private int wakeupChunkSize = 3;
+
+    /**
+     * This is the amount of seconds of silence (not perfect, just close quiet) that must occur  after a voice command to put the bot to sleep.
+     * After this timeout is reached, the voice command will be processed, and the bot put to sleep.
+     */
+    private int voiceCommandTimeout = 3;
     /*
      *
      * End configuration settings
@@ -79,7 +80,7 @@ public class SpeechReceiver implements AudioReceiveHandler {
 
     /*
      *
-     * Internal parameters
+     * Internal variables
      * You shouldn't need to edit these!
      *
      */
@@ -116,7 +117,13 @@ public class SpeechReceiver implements AudioReceiveHandler {
      * phrases are much more likely to be detected. However, a grammar file has to be written and CMUSphinx reconfigured
      * whenever the user adds a wakeup phrase. No biggy.
      */
-    private StreamSpeechRecognizer wakeupPhraseRecongizer;
+    private StreamSpeechRecognizer wakeupPhraseRecognizer;
+
+    /*
+     * This is the length of the byte array of pcm containing 1 full second of audio, used for
+     * timeout / wakeup audio chunk sizes
+     */
+    private static final int BYTES_PER_SECOND = 192000;
 
     /**
      * Creates a SpeechReceiver object. This will initialize required directories and configure voice recognition
@@ -126,20 +133,25 @@ public class SpeechReceiver implements AudioReceiveHandler {
      */
     public SpeechReceiver(String wakeupPhrase, SpeechCallback callback) {
         this.wakeupPhrases = new ArrayList<>();
-        addWakeupPhrase(wakeupPhrase);
         this.callback = callback;
 
         // Create the cache directory, and d
         String osName = System.getProperty("os.name").toLowerCase();
         if(osName.contains("win")) {
-            cache = new File((System.getenv("APPDATA") + File.separator + "Hidden" + File.separator));
+            cache = new File((System.getenv("APPDATA") + File.separator + "VocalCord" + File.separator));
         } else if(osName.contains("mac")) {
-            cache = new File(System.getProperty("user.home") + "/Library/Application Support/Hidden"+File.separator);
+            cache = new File(System.getProperty("user.home") + "/Library/Application Support/VocalCord"+File.separator);
         } else if(osName.contains("nux")) {
             cache = new File(System.getProperty("user.home"));
         }
 
-        if(!cache.exists()) cache.mkdirs();
+        if(!cache.exists()) {
+            if(!cache.mkdirs() && !cache.mkdir()) System.err.println("Failed to create cache directory.");
+        }
+
+        addWakeupPhrase(wakeupPhrase);
+
+        configureSphinx();
 
         Logger cmRootLogger = Logger.getLogger("default.config");
         cmRootLogger.setLevel(java.util.logging.Level.OFF);
@@ -160,10 +172,15 @@ public class SpeechReceiver implements AudioReceiveHandler {
 
         // Create the custom wakeup grammar phrase file
         String[] lines = new String[4];
-        lines[0] = "$JSGF V1.0;";
-        lines[1] = "\n";
-        lines[2] = "grammar wakeupPhrases;";
+        lines[0] = "#JSGF V1.0;";
+        lines[1] = "";
+        lines[2] = "grammar phrases;";
         StringBuilder builder = new StringBuilder("public <command> = (");
+        /*
+         * This is a bit of a hack, but since we are using a grammar file, we need several more words in our
+         * "make shift" language so the wakeup phrases don't get said too much
+         */
+        builder.append("apple | car | dice | much | too | how | today | after | before | ");
         for(int i = 0; i < wakeupPhrases.size(); i++) {
             builder.append(wakeupPhrases.get(i));
             String separator = (i == wakeupPhrases.size() - 1) ? ");" : " | ";
@@ -174,10 +191,12 @@ public class SpeechReceiver implements AudioReceiveHandler {
         // Write the phrases.gram file for CMUSphinx to read
         File phrases = new File(cache+File.separator+"phrases.gram");
         try {
-            if(!phrases.exists()) phrases.createNewFile();
-            FileOutputStream fos = new FileOutputStream(phrases);
-            PrintWriter writer = new PrintWriter(fos);
-            for(String line : lines) writer.println(line);
+            if(!phrases.exists()) {
+                if(!phrases.createNewFile()) System.err.println("Failed to create phrases.gram file.");
+            }
+            FileWriter writer = new FileWriter(phrases);
+            for(String line : lines) writer.write(line+"\n");
+            writer.close();
         } catch(IOException e) {
             System.err.println("An error occurred while writing CMUSphinx grammar file. Err: "+e.getMessage());
         }
@@ -203,17 +222,17 @@ public class SpeechReceiver implements AudioReceiveHandler {
     }
 
     /**
-     * @param playBoop {@link SpeechReceiver#playBoop}
-     */
-    public void setPlayBoop(boolean playBoop) {
-        this.playBoop = playBoop;
-    }
-
-    /**
      * @param callback {@link SpeechReceiver#callback}
      */
     public void setSpeechCallback(SpeechCallback callback) {
         this.callback = callback;
+    }
+
+    /**
+     * @param voiceCommandTimeout {@link SpeechReceiver#voiceCommandTimeout}
+     */
+    public void setVoiceCommandTimeout(int voiceCommandTimeout) {
+        this.voiceCommandTimeout = voiceCommandTimeout;
     }
 
     /*
@@ -225,12 +244,12 @@ public class SpeechReceiver implements AudioReceiveHandler {
         configuration.setAcousticModelPath("resource:/edu/cmu/sphinx/models/en-us/en-us");
         configuration.setDictionaryPath("resource:/edu/cmu/sphinx/models/en-us/cmudict-en-us.dict");
         configuration.setLanguageModelPath("resource:/edu/cmu/sphinx/models/en-us/en-us.lm.bin");
-        configuration.setGrammarPath(cache+File.separator+"phrases.gram");
-        configuration.setGrammarName("wakeupPhrases");
+        configuration.setGrammarPath("file:"+cache);
+        configuration.setGrammarName("phrases");
         configuration.setUseGrammar(true);
 
         try {
-            recognizer = new StreamSpeechRecognizer(configuration);
+            wakeupPhraseRecognizer = new StreamSpeechRecognizer(configuration);
         } catch(Exception e) {
             System.err.println("Failed to configure CMUSphinx. Err: "+e.getMessage());
         }
@@ -239,27 +258,47 @@ public class SpeechReceiver implements AudioReceiveHandler {
     /*
      * Processes the audio as wakeup phrase or command, and runs a few other checks on it (user verification, volume stop, etc)
      */
-    private void processAudio(User user, byte[] receivedChunk) {
+    private void processAudio(byte[] receivedChunk, User ... users) {
         concatenateChunk(receivedChunk);
 
         /*
-         * The bot will process a command when 3 full seconds of silence have occurred.
-         * Check the end of the byte array for this
+         * This code is important, it handles voice commands. It needs to do two things:
+         *
+         * -If combinedAudio==false (bot only listens to one user), make sure that only that user gets to add to this array
+         * -Once 2 full seconds of silence have passed, put that bot back to sleep and listen for the commands
+         * -Ten second cap on voice commands
          */
-        if(awake && volumeRMS(receivedChunk) <= 0.20) { //TODO fix this condition && verify the same user
+        if(awake && (quietChunkDetected() || pcm.length >= BYTES_PER_SECOND * 10) && (combinedAudio || this.user.getId().equals(users[0].getId()))) {
             if(callback != null) callback.commandReceived(speechRecognition(convertPCM()));
             awake = false;
             pcm = null;
+            this.user = null;
+            configureSphinx(); // for some reason, sphinx needs to be reconfigured
         }
-        else if(!awake && pcm.length >= 192000 * wakeupChunkSize) {
-            if(wasWakeupSaid(convertPCM()) && callback != null && callback.botAwakeRequest(user)) {
-                awake = true;
-                if(!combinedAudio) {
-                    user = user; // etc
+        else if(!awake && pcm.length >= BYTES_PER_SECOND * wakeupChunkSize) {
+            try {
+                if(callback != null && wasWakeupSaid(convertPCM()) && callback.botAwakeRequest(users)) {
+                    awake = true;
+                    if(!combinedAudio) {
+                        this.user = users[0];
+                    }
                 }
+            } catch(Exception e) {
+                e.printStackTrace();
+            } finally {
+                pcm = null;
             }
-            pcm = null;
         }
+    }
+
+    private boolean quietChunkDetected() {
+        int chunkSize = BYTES_PER_SECOND * voiceCommandTimeout;
+        if(pcm == null || chunkSize >= pcm.length) return false;
+
+        // Get the end of the array
+        byte[] temp = new byte[chunkSize];
+        System.arraycopy(pcm, pcm.length - chunkSize - 1, temp, 0, chunkSize);
+        return volumeRMS(temp) <= 15; // the audio volume threshold considered silence (this is arbitrary)
     }
 
     /*
@@ -270,9 +309,9 @@ public class SpeechReceiver implements AudioReceiveHandler {
             AudioFormat target = new AudioFormat(16000f, 16, 1, true, false);
             AudioInputStream is = AudioSystem.getAudioInputStream(target, new AudioInputStream(new ByteArrayInputStream(pcm), AudioReceiveHandler.OUTPUT_FORMAT, pcm.length));
             AudioSystem.write(is, AudioFileFormat.Type.WAVE, new File(cache + File.separator + "audio.wav"));
-            return IoUtils.toByteArray(new FileInputStream(new File(cache + File.separator + "audio.wav")));;
+            return IoUtils.toByteArray(new FileInputStream(new File(cache + File.separator + "audio.wav")));
         } catch(Exception e) {
-            e.printStackTrace();
+            System.out.println("Failed to convert!");
         }
         return null;
     }
@@ -281,20 +320,21 @@ public class SpeechReceiver implements AudioReceiveHandler {
      * Adds a 20 millisecond chunk of speechRecognition to the pcm byte[] array so speechRecognition can be processed in bigger chunks
      */
     private void concatenateChunk(byte[] chunk) {
-        if(pcm == null) {
-            pcm = new byte[chunk.length];
-            return;
+        if(pcm == null) pcm = chunk;
+        else {
+            byte[] newPacket = new byte[pcm.length + chunk.length];
+            System.arraycopy(pcm, 0, newPacket, 0, pcm.length);
+            System.arraycopy(chunk, 0, newPacket, pcm.length, chunk.length);
+            pcm = newPacket;
         }
-        byte[] newPacket = new byte[pcm.length + chunk.length];
-        System.arraycopy(pcm, 0, newPacket, 0, pcm.length);
-        System.arraycopy(chunk, 0, newPacket, pcm.length, chunk.length);
-        pcm = newPacket;
     }
 
     /*
      * Runs audio data through Google's Speech API and returns its top transcription prediction
      */
-    public static String speechRecognition(byte[] pcm) {
+    private String speechRecognition(byte[] pcm) {
+        System.out.println("Accessing Google Cloud Speech API.");
+
         try (SpeechClient speech = SpeechClient.create()) {
             ByteString audioBytes = ByteString.copyFrom(pcm);
 
@@ -313,7 +353,10 @@ public class SpeechReceiver implements AudioReceiveHandler {
             List<SpeechRecognitionResult> results = response.getResultsList();
 
             return results.get(0).getAlternativesList().get(0).getTranscript();
+        } catch(Exception e) {
+            System.err.println("Failed to run Google Cloud speech recognition. Err: "+e.getMessage());
         }
+        return "";
     }
 
     /*
@@ -322,51 +365,55 @@ public class SpeechReceiver implements AudioReceiveHandler {
      *
      * Returns true if the audio data contained any of the wakeup phrases
      */
-    private boolean wasWakeupSaid(byte[] pcm) throws Exception {
-        recognizer.startRecognition(new ByteArrayInputStream(pcm));
+    private boolean wasWakeupSaid(byte[] pcm) {
+        System.out.println("Sleeping...");
+
+        wakeupPhraseRecognizer.startRecognition(new ByteArrayInputStream(pcm));
         SpeechResult result;
-        while ((result = recognizer.getResult()) != null) {
+        while ((result = wakeupPhraseRecognizer.getResult()) != null) {
+            System.out.println(result.getHypothesis());
             for(String phrase : wakeupPhrases) {
-                if(result.getHypothesis().toLowerCase().contains(phrase.toLowerCase())) return true;
+                if(result.getHypothesis().toLowerCase().contains(phrase.toLowerCase())) {
+                    wakeupPhraseRecognizer.stopRecognition();
+                    return true;
+                }
             }
         }
-        recognizer.stopRecognition();
+        wakeupPhraseRecognizer.stopRecognition();
         return false;
     }
 
     /*
-     * Calculates the average volume (between -1 and 1) of the raw PCM.
+     * Calculates the average volume of the raw PCM.
      * This is used for detecting when the bot should stop listening for a voice command.
      */
-    public double volumeRMS(byte[] raw) {
+    private double volumeRMS(byte[] raw) {
         double sum = 0d;
         if (raw.length==0) {
             return sum;
         } else {
-            for (int ii=0; ii<raw.length; ii++) {
-                sum += raw[ii];
+            for (byte aRaw : raw) {
+                sum += aRaw;
             }
         }
         double average = sum/raw.length;
 
         double sumMeanSquare = 0d;
-        for (int ii=0; ii<raw.length; ii++) {
-            sumMeanSquare += Math.pow(raw[ii]-average,2d);
+        for (byte aRaw : raw) {
+            sumMeanSquare += Math.pow(aRaw - average, 2d);
         }
         double averageMeanSquare = sumMeanSquare/raw.length;
-        double rootMeanSquare = Math.sqrt(averageMeanSquare);
-
-        return rootMeanSquare;
+        return Math.sqrt(averageMeanSquare);
     }
 
     @Override
     public void handleCombinedAudio(CombinedAudio combinedAudio) {
-        if(combinedAudio) processAudio(user, getAudioData(1.0));
+        if(this.combinedAudio) processAudio(combinedAudio.getAudioData(1.0), combinedAudio.getUsers().toArray(new User[combinedAudio.getUsers().size()]));
     }
 
     @Override
     public void handleUserAudio(UserAudio userAudio) {
-        if(!combinedAudio) processAudio(user, getAudioData(1.0));
+        if(!combinedAudio) processAudio(userAudio.getAudioData(1.0), userAudio.getUser());
     }
 
     @Override
@@ -377,5 +424,33 @@ public class SpeechReceiver implements AudioReceiveHandler {
     @Override
     public boolean canReceiveUser() {
         return !combinedAudio;
+    }
+
+    public SpeechCallback getCallback() {
+        return callback;
+    }
+
+    public void setCallback(SpeechCallback callback) {
+        this.callback = callback;
+    }
+
+    public ArrayList<String> getWakeupPhrases() {
+        return wakeupPhrases;
+    }
+
+    public void setWakeupPhrases(ArrayList<String> wakeupPhrases) {
+        this.wakeupPhrases = wakeupPhrases;
+    }
+
+    public boolean isCombinedAudio() {
+        return combinedAudio;
+    }
+
+    public int getWakeupChunkSize() {
+        return wakeupChunkSize;
+    }
+
+    public int getVoiceCommandTimeout() {
+        return voiceCommandTimeout;
     }
 }

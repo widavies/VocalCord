@@ -22,7 +22,6 @@ class SilenceAudioSendHandler: AudioSendHandler {
         return canProvide
     }
 
-    //TODO
     override fun isOpus(): Boolean {
         return true
     }
