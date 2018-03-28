@@ -16,7 +16,6 @@ voice commands, you shouldn't have too much of a problem fitting in this 60 minu
 compile 'net.dv8tion:JDA:3.5.1_339'
 ``` 
 to your build.gradle.
-```
 2) Make sure the Google Cloud Speech API is installed by adding 
 ```java
 compile 'com.google.cloud:google-cloud-speech:0.32.0-alpha'
