@@ -29,13 +29,16 @@ public class Bot extends ListenerAdapter {
 
     @Override
     public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
-        summon(event, event.getGuild().getVoiceChannelsByName("radio", true).get(0));
+        summon(event, event.getGuild().getVoiceChannelsByName("General 1", true).get(0));
     }
 
     // Summons the bot to a voice channel, this is triggered by a message received in any channel
     private void summon(GuildMessageReceivedEvent event, VoiceChannel channel) {
         // Reference the audio manager
         AudioManager manager = channel.getGuild().getAudioManager();
+
+        // This is required
+        manager.setSendingHandler(new SilenceAudioSendHandler());
 
         // Setup the SpeechReceiver, you can initialize a wakeup phrase here, and the speech callback
         SpeechReceiver speechReceiver = new SpeechReceiver("okay bought", new SpeechCallback() {
