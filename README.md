@@ -15,12 +15,13 @@ voice commands, you shouldn't have too much of a problem fitting in this 60 minu
 ```java
 compile 'net.dv8tion:JDA:3.5.1_339'
 compile 'com.google.cloud:google-cloud-speech:0.32.0-alpha'
+compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 compile group: 'edu.cmu.sphinx', name: 'sphinx4-core', version:'5prealpha-SNAPSHOT'
 compile group: 'edu.cmu.sphinx', name: 'sphinx4-data', version:'5prealpha-SNAPSHOT'
 ``` 
 5) [Setup an authentication](https://cloud.google.com/speech/docs/reference/libraries) token for Google Cloud Speech API, you'll need to export this to your PATH.   
 6) VocalCord is a library to assist you during bot creation, it's not a standalone bot. Thus, I'm assuming you already have a Discord bot token.
-7) Copy the ```SpeechCallback``` and ```SpeechReceiver``` classes from the ```speechRecognition``` package to your project, you don't need to compile or setup a .jar. 
+7) Copy the ```SpeechCallback``` and ```SpeechReceiver``` classes from the ```speechRecognition``` package to your project and ```SilenceAudioSender``` from the ```speechGeneration``` package, you don't need to compile or setup a .jar. 
 # Usage
 See example usage [here](https://github.com/wdavies973/VocalCord/blob/master/src/main/java/com/cpjd/main/Bot.java).
 
