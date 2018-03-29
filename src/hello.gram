@@ -1,4 +1,0 @@
-#JSGF V1.0;
-
-grammar hello;
-public <command> = (hey bot | hey bought);
