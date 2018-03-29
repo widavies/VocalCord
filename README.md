@@ -26,7 +26,7 @@ See example usage [here](https://github.com/wdavies973/VocalCord/blob/master/src
 # VocalCord configuration settings
 -```wakeupPhrases``` you can add wakeup phrases like so: ```speechReceiver.addWakeupPhrase("Yo Discord!");```. Wakeup phrases are certain phrases that will "awaken" the bot when said. You can add as many as you like, but <5 is the ideal amount. Choose phrases that are easily recognizable and make note of certain nuances. "hey bought" will get detected more often than "hey bot"   
 -```combinedAudio``` this configures whether to collect audio from multiple users or restrict it to one user, currently, Discord developers have acknowledged a bug regarding user audio, so this MUST BE SET TO TRUE.  
--```wakeupChunkSize``` this is the size (in seconds) of sound that will be scanned for wakeup phrases. You shouldn't need to change it, but if the bot is having trouble waking up, give it a shot.
--```voiceCommandTimeout``` when the bot is awake, it will listen to a command until 10 seconds have passed OR this many seconds of silence have occurred. You can change the amount of quiet needed to stop listening here.
+-```wakeupChunkSize``` this is the size (in seconds) of sound that will be scanned for wakeup phrases. You shouldn't need to change it, but if the bot is having trouble waking up, give it a shot.  
+-```voiceCommandTimeout``` when the bot is awake, it will listen to a command until 10 seconds have passed OR this many seconds of silence have occurred. You can change the amount of quiet needed to stop listening here.  
 
 For questions, feedback, or bugs, contact me at wdavies973@gmail.com
