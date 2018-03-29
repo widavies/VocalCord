@@ -23,6 +23,8 @@ compile group: 'edu.cmu.sphinx', name: 'sphinx4-data', version:'5prealpha-SNAPSH
 7) Copy the ```SpeechCallback``` and ```SpeechReceiver``` classes from the ```speechRecognition``` package to your project, you don't need to compile or setup a .jar. 
 # Usage
 See example usage [here](https://github.com/wdavies973/VocalCord/blob/master/src/main/java/com/cpjd/main/Bot.java).
+
+IMPORTANT: Due to a Discord audio bug, as the VocalCord bot is connecting to the voice channel, you must make some noise through your micorophone to properly initialize audio recognition. Make 5 seconds worth of noise and the bot should work until you have to restart it.
 # VocalCord configuration settings
 -```wakeupPhrases``` you can add wakeup phrases like so: ```speechReceiver.addWakeupPhrase("Yo Discord!");```. Wakeup phrases are certain phrases that will "awaken" the bot when said. You can add as many as you like, but <5 is the ideal amount. Choose phrases that are easily recognizable and make note of certain nuances. "hey bought" will get detected more often than "hey bot"   
 -```combinedAudio``` this configures whether to collect audio from multiple users or restrict it to one user, currently, Discord developers have acknowledged a bug regarding user audio, so this MUST BE SET TO TRUE.  
