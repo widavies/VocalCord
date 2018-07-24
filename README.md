@@ -6,7 +6,7 @@ VocalCord receives audio data from Discord through the [JDA](https://github.com/
 will begin listening to small chunks of audio for its wakeup phrase. It uses CMUSphinx voice recognition for this, so the continous wakeup
 phrase detection won't cost anything. However, CMUSphinx's accuracy has nothing on Google Cloud's Speech API. After the wakeup phrase is
 detected, VocalCord will pass control of voice recongition to the Google Cloud Speech API, which can provide much more accurate transcriptions.
-Google Cloud Speech API gives you 60 minutes of free audio recognition per month, with a small fee for going over. Since VocalCord is detects
+Google Cloud Speech API gives you 60 minutes of free audio recognition per month, with a small fee for going over. Since VocalCord is only detecting
 voice commands, you shouldn't have too much of a problem fitting in this 60 minutes limit.
 
 # Installation
