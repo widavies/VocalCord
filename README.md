@@ -15,7 +15,6 @@ voice commands, you shouldn't have too much of a problem fitting in this 60 minu
 ```java
 compile 'net.dv8tion:JDA:3.5.1_339'
 compile 'com.google.cloud:google-cloud-speech:0.32.0-alpha'
-compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$1.2.31"
 compile group: 'edu.cmu.sphinx', name: 'sphinx4-core', version:'5prealpha-SNAPSHOT'
 compile group: 'edu.cmu.sphinx', name: 'sphinx4-data', version:'5prealpha-SNAPSHOT'
 ``` 
