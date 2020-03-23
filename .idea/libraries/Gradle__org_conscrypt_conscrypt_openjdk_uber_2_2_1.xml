@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: org.conscrypt:conscrypt-openjdk-uber:2.2.1">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.conscrypt/conscrypt-openjdk-uber/2.2.1/59a346d64c0ddca750c5c877e274d5e6278e53ce/conscrypt-openjdk-uber-2.2.1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.conscrypt/conscrypt-openjdk-uber/2.2.1/d84ccc315e76df6954c8efda041b3a5d745f82e9/conscrypt-openjdk-uber-2.2.1-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
