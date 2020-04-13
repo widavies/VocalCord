@@ -25,7 +25,7 @@ buildscript {
 }
 
 task execute(type: JavaExec) {
-    main = "com.gmail.wdavies973.lib.VocalEngine"
+    main = "example.ExampleBot"
     environment "LD_LIBRARY_PATH", "wake-engine/jni"
     // environment "LD_DEBUG", "libs"
 

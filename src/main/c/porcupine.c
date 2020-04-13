@@ -24,7 +24,7 @@ JNIEXPORT jlong JNICALL Java_wakeup_Porcupine_init
     pv_porcupine_t *handle;
 
     float sensArr[1];
-    sensArr[0] = sens;
+    sensArr[0] = 1;
 
     const char * keyword_paths[1] = { keyword };
 
@@ -49,7 +49,8 @@ JNIEXPORT jboolean JNICALL Java_wakeup_Porcupine_process
 
   (*env)->ReleaseShortArrayElements(env, pcm_raw, pcm, 0);
 
-  return true;
+  bool result = keyword_index != -1;
+  return result;
 }
 
 JNIEXPORT void JNICALL Java_wakeup_Porcupine_delete
