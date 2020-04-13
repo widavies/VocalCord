@@ -16,23 +16,26 @@ JNIEXPORT jlong JNICALL Java_wakeup_Porcupine_init
   (JNIEnv *env, jobject obj, jstring model_raw, jstring keyword_raw, jfloat sens) {
 
     const char *model = (*env)->GetStringUTFChars(env, model_raw, 0);
-    void * keyword = (void *)(*env)->GetStringUTFChars(env, keyword_raw, 0);
+    const char * keyword = (*env)->GetStringUTFChars(env, keyword_raw, 0);
 
     printf("Initializing Porcupine, using keyword directory %s...\n", (char *)keyword);
+    printf("Settings file %s\n", model);
 
     pv_porcupine_t *handle;
 
     float sensArr[1];
     sensArr[0] = sens;
 
-    const pv_status_t status = pv_porcupine_init(model, 1, (const char*const*)keyword, sensArr, &handle);
+    const char * keyword_paths[1] = { keyword };
+
+    const pv_status_t status = pv_porcupine_init(model, 1, keyword_paths, sensArr, &handle);
 
     if (status != PV_STATUS_SUCCESS) {
        printf("Error: Failed to initialise the Porcupine instance.");
     }
 
     (*env)->ReleaseStringUTFChars(env, model_raw, model);
-    (*env)->ReleaseStringUTFChars(env, keyword_raw, (const char*)keyword);
+    (*env)->ReleaseStringUTFChars(env, keyword_raw, keyword);
 
     return (long)handle;
 }
