@@ -1,10 +1,10 @@
 package wakeup;
-
+// sudo apt-get install openjdk-8-jdk-headless
 public class Porcupine {
     private final long object;
 
     static {
-        System.loadLibrary("pv_porcupine");
+        System.loadLibrary("java_porcupine");
     }
 
     public Porcupine(String modelFilePath, String keywordFilePath, float sens) throws Exception {
@@ -31,7 +31,7 @@ public class Porcupine {
 
     public native int getSampleRate();
 
-    private native long init(String modelFilePath, String keywordFilePaths, float sensitivitie);
+    private native long init(String modelFilePath, String keywordFilePaths, float sensitivities);
 
     private native boolean process(long object, short[] pcm);
 

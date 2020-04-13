@@ -1,6 +1,7 @@
 version '1.0.0'
 
 apply plugin: 'java'
+apply plugin: 'application'
 
 sourceCompatibility = 1.8
 
@@ -21,4 +22,13 @@ buildscript {
     repositories {
         mavenCentral()
     }
+}
+
+task execute(type: JavaExec) {
+    main = "com.gmail.wdavies973.lib.VocalEngine"
+    environment "LD_LIBRARY_PATH", "$project.rootDir/wake-engine/jni"
+    // environment "LD_DEBUG", "libs"
+
+    // systemProperty "java.library.path", "$project.rootDir/wake-engine/jni"
+    classpath = sourceSets.main.runtimeClasspath
 }
