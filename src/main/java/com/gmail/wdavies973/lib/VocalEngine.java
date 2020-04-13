@@ -6,12 +6,23 @@ import wakeup.Porcupine;
 
 import javax.annotation.Nonnull;
 
+/*
+ * -
+ */
+
 public class VocalEngine implements AudioReceiveHandler {
 
     private VocalCord cord;
 
     // Wake word detection library
     private Porcupine porcupine;
+
+    private boolean collecting;
+
+    private byte[] phrase;
+
+    private int startTimeout = 5;
+    private int assTimeout = 3;
 
     private static class PorcupineAdapter {
 
@@ -56,7 +67,6 @@ public class VocalEngine implements AudioReceiveHandler {
         private short bytePairToShort(byte a, byte b) {
             return (short) ((a << 8) | (b & 0xFF));
         }
-
     }
 
     public VocalEngine(VocalCord cord) throws Exception {
@@ -75,15 +85,57 @@ public class VocalEngine implements AudioReceiveHandler {
 
     @Override
     public void handleUserAudio(@Nonnull UserAudio userAudio) {
+        System.out.println(userAudio.getAudioData(1)[0]);
+
+        if(collecting) {
+            // Start concatenating bytes
+            concatenateChunk(userAudio.getAudioData(1));
+            return;
+        }
+
         try {
             PorcupineAdapter pa = new PorcupineAdapter(userAudio.getAudioData(1));
             while(pa.hasNext()) {
                 if(porcupine.processFrame(pa.take())) {
                     System.out.println("WAKE WORD DETECTED!!!!!!!");
+
+                    // Start collecting audio for Google recognition
+                    collecting = true;
+                    return;
                 }
             }
+            System.out.println("Yeemed");
         } catch(Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    private double volumeRMS(byte[] raw) {
+        double sum = 0d;
+        if(raw.length == 0) {
+            return sum;
+        } else {
+            for(byte aRaw : raw) {
+                sum += aRaw;
+            }
+        }
+        double average = sum / raw.length;
+
+        double sumMeanSquare = 0d;
+        for(byte aRaw : raw) {
+            sumMeanSquare += Math.pow(aRaw - average, 2d);
+        }
+        double averageMeanSquare = sumMeanSquare / raw.length;
+        return Math.sqrt(averageMeanSquare);
+    }
+
+    private void concatenateChunk(byte[] chunk) {
+        if(this.phrase == null) phrase = chunk;
+        else {
+            byte[] newPacket = new byte[phrase.length + chunk.length];
+            System.arraycopy(phrase, 0, newPacket, 0, phrase.length);
+            System.arraycopy(chunk, 0, newPacket, phrase.length, chunk.length);
+            phrase = newPacket;
         }
     }
 
