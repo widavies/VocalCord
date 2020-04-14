@@ -14,10 +14,6 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-/*
- * -
- */
-
 public class VocalEngine implements AudioReceiveHandler {
 
     private VocalCord cord;

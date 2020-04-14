@@ -2,10 +2,6 @@ package example;
 
 import com.google.cloud.texttospeech.v1beta1.*;
 import com.google.protobuf.ByteString;
-import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
-import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
-import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
-import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.audio.AudioSendHandler;
@@ -30,11 +26,7 @@ public class ExampleBot extends ListenerAdapter implements VocalCord {
         JDA api = JDABuilder.createDefault(Constants.TOKEN).build();
         api.addEventListener(new ExampleBot());
 
-        AudioPlayerManager playerManager = new DefaultAudioPlayerManager();
-        AudioSourceManagers.registerLocalSource(playerManager);
-        AudioPlayer player = playerManager.createPlayer();
-
-        sender = new Sender(playerManager, player);
+        sender = new Sender();
     }
 
     @Override
@@ -51,18 +43,10 @@ public class ExampleBot extends ListenerAdapter implements VocalCord {
     }
 
     public static class Sender implements AudioSendHandler {
-        private final AudioPlayer audioPlayer;
         private ByteBuffer lastFrame;
-
-        private AudioPlayerManager m;
 
         private byte[] pcm;
         private int index = 0;
-
-        public Sender(AudioPlayerManager m, AudioPlayer player) {
-            this.audioPlayer = player;
-            this.m = m;
-        }
 
         @Override
         public boolean canProvide() {
@@ -157,43 +141,6 @@ public class ExampleBot extends ListenerAdapter implements VocalCord {
                 System.out.println(this.pcm.length+" samples");
 
                 this.index = 0;
-
-                // Write to a file
-//                try {
-//                    AudioFormat target = new AudioFormat(48000f, 16, 2, true, true);
-//                    AudioInputStream is = AudioSystem.getAudioInputStream(target, new AudioInputStream(new ByteArrayInputStream(this.pcm), AudioReceiveHandler.OUTPUT_FORMAT, this.pcm.length));
-//                    AudioSystem.write(is, AudioFileFormat.Type.WAVE, new File("/mnt/c/Users/wdavi/IdeaProjects/VocalCord/converted.wav"));
-//                } catch(Exception e) {
-//                    System.out.println("Failed to convert!");
-//                }
-
-//                try(OutputStream out = new FileOutputStream("/mnt/c/Users/wdavi/IdeaProjects/VocalCord/output.wav")) {
-//                    out.write(this.pcm);
-//                    System.out.println("Audio content written to file \"output.ogg\"");
-//                }
-//
-//                m.loadItem("/mnt/c/Users/wdavi/IdeaProjects/VocalCord/output.mp3", new AudioLoadResultHandler() {
-//                    @Override
-//                    public void trackLoaded(AudioTrack track) {
-//                        System.out.println("Loaded track");
-//                        audioPlayer.playTrack(track);
-//                    }
-//
-//                    @Override
-//                    public void playlistLoaded(AudioPlaylist playlist) {
-//
-//                    }
-//
-//                    @Override
-//                    public void noMatches() {
-//                        System.out.println("No matches");
-//                    }
-//
-//                    @Override
-//                    public void loadFailed(FriendlyException exception) {
-//                        System.out.println(exception.getMessage());
-//                    }
-//                });
 
                 // Write the response to the output file.
             } catch(Exception e) {
