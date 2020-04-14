@@ -1,20 +1,14 @@
 package example;
 
-import com.google.cloud.texttospeech.v1beta1.*;
-import com.google.protobuf.ByteString;
+import com.google.cloud.texttospeech.v1beta1.SsmlVoiceGender;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
-import net.dv8tion.jda.api.audio.AudioSendHandler;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import vocalcord.VocalCord;
-import vocalcord.STTEngine;
-
-import javax.annotation.Nullable;
-import java.nio.ByteBuffer;
 
 // Create a template JDA bot using this guide: https://github.com/DV8FromTheWorld/JDA/wiki/3)-Getting-Started
 public class ExampleBot extends ListenerAdapter implements VocalCord.Callbacks {
@@ -29,8 +23,10 @@ public class ExampleBot extends ListenerAdapter implements VocalCord.Callbacks {
 
         // Constants.token won't be defined for you because it's not tracked by git, this is where you'll put your
         // bot's authentication token
-        JDA api = JDABuilder.createDefault(Constants.TOKEN).build();
-        api.addEventListener(new ExampleBot());
+//        JDA api = JDABuilder.createDefault(Constants.TOKEN).build();
+//        api.addEventListener(new ExampleBot());
+
+        System.out.println("Hello world!");
     }
 
     @Override

@@ -26,11 +26,11 @@ buildscript {
     }
 }
 
-task execute(type: JavaExec) {
-    main = "example.ExampleBot"
-    environment "LD_LIBRARY_PATH", "wake-engine/jni"
-    // environment "LD_DEBUG", "libs"
-
-    // systemProperty "java.library.path", "$project.rootDir/wake-engine/jni"
-    classpath = sourceSets.main.runtimeClasspath
-}
+//task execute(type: JavaExec) {
+//    main = "example.ExampleBot"
+//    environment "LD_LIBRARY_PATH", "wake-engine/jni"
+//    // environment "LD_DEBUG", "libs"
+//
+//    // systemProperty "java.library.path", "$project.rootDir/wake-engine/jni"
+//    classpath = sourceSets.main.runtimeClasspath
+//}
