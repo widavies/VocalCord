@@ -1,12 +1,10 @@
 package com.gmail.wdavies973.lib;
 
 import com.google.cloud.speech.v1.*;
-import com.google.common.primitives.Bytes;
 import com.google.protobuf.ByteString;
 import net.dv8tion.jda.api.audio.AudioReceiveHandler;
 import net.dv8tion.jda.api.audio.UserAudio;
 import org.apache.commons.io.IOUtils;
-import org.conscrypt.io.IoUtils;
 import wakeup.Porcupine;
 
 import javax.annotation.Nonnull;
@@ -17,9 +15,10 @@ import javax.sound.sampled.AudioSystem;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 /*
  * -
@@ -108,7 +107,7 @@ public class VocalEngine implements AudioReceiveHandler {
 
     @Override
     public void handleUserAudio(@Nonnull UserAudio userAudio) {
-        if(!userAudio.getUser().getName().contains("tech")) return;
+        if(!userAudio.getUser().getName().contains("bare")) return;
 
         if(collecting) {
             stream.add(userAudio.getAudioData(1));

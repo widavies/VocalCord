@@ -53,9 +53,6 @@ public class ExampleBot extends ListenerAdapter implements VocalCord {
 
         transcript = transcript.toLowerCase();
 
-
-        sender.say(transcript);
-
     }
 
     @Override
