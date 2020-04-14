@@ -139,37 +139,48 @@ public class UserStream {
 
     // export GOOGLE_APPLICATION_CREDENTIALS=/mnt/c/Users/wdavi/IdeaProjects/VocalCord/vocalcord-gcs.json
     public byte[] getAudioForGoogle() {
-        // Trim
-        byte[] trimmed = new byte[index];
-        System.arraycopy(phrase, 0, trimmed, 0, index);
+//        // Trim
+//        byte[] trimmed = new byte[index];
+//        System.arraycopy(phrase, 0, trimmed, 0, index);
+//
+//        // Stereo to mono
+//        byte[] mono = new byte[trimmed.length / 2];
+//        for(int i = 0, j = 0; i < trimmed.length; i += 4, j+=2) {
+//            short a = (short) ((trimmed[i] << 8) | (trimmed[i + 1] & 0xFF));
+//            short b = (short) ((trimmed[i + 2] << 8) | (trimmed[i + 3] & 0xFF));
+//
+//            short m = Short.reverseBytes((short) ((a + b) / 2));
+//
+//            byte high = (byte) (m >> 8);
+//            byte low = (byte) (m & 0x00FF);
+//
+//            mono[j] = high;
+//            mono[j+1] = low;
+//        }
+//
+//        byte[] downsized = new byte[mono.length / 2];
+//
+//        // Convert to little endian
+//        for(int i = 0, j = 0; i < mono.length; i += 4, j+=2 ) {
+//            downsized[j] = mono[i];
+//            downsized[j + 1] = mono[i+1];
+//        }
+//
+//        return downsized;
 
-        // Stereo to mono
-        byte[] mono = new byte[trimmed.length / 2];
-        for(int i = 0, j = 0; i < trimmed.length; i += 4, j+=2) {
-            short a = (short) ((trimmed[i] << 8) | (trimmed[i + 1] & 0xFF));
-            short b = (short) ((trimmed[i + 2] << 8) | (trimmed[i + 3] & 0xFF));
+        try {
+            AudioFormat target = new AudioFormat(16000f, 16, 1, true, false);
+            AudioInputStream is = AudioSystem.getAudioInputStream(target, new AudioInputStream(new ByteArrayInputStream(phrase), AudioReceiveHandler.OUTPUT_FORMAT, phrase.length));
 
-            short m = Short.reverseBytes((short) ((a + b) / 2));
-
-            byte high = (byte) (m >> 8);
-            byte low = (byte) (m & 0x00FF);
-
-            mono[j] = high;
-            mono[j+1] = low;
+            return is.readAllBytes();
+        } catch(Exception e) {
+            e.printStackTrace();
+            return null;
         }
 
-        byte[] downsized = new byte[mono.length / 2];
-
-        // Convert to little endian
-        for(int i = 0, j = 0; i < mono.length; i += 4, j+=2 ) {
-            downsized[j] = mono[i];
-            downsized[j + 1] = mono[i+1];
-        }
-
-        return downsized;
 
 //        try {
-//            AudioFormat target = new AudioFormat(16000f, 16, 1, true, false);
+//            AudioFormat target = ;
 //            AudioInputStream is = AudioSystem.getAudioInputStream(target, new AudioInputStream(new ByteArrayInputStream(phrase), AudioReceiveHandler.OUTPUT_FORMAT, phrase.length));
 //            AudioSystem.write(is, AudioFileFormat.Type.WAVE, new File("/mnt/c/Users/wdavi/IdeaProjects/VocalCord/audio.wav"));
 //            return IOUtils.toByteArray(new FileInputStream(new File("/mnt/c/Users/wdavi/IdeaProjects/VocalCord/audio.wav")));

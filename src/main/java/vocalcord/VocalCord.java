@@ -110,7 +110,7 @@ public class VocalCord {
             manager.setSendingHandler(ttsEngine);
             manager.setReceivingHandler(new STTEngine(this));
             try {
-                ttsEngine.cache("Yes, Master?");
+                ttsEngine.cache("Yes?");
                 ttsEngine.cache("hello");
             } catch(Exception e) {
                 e.printStackTrace();

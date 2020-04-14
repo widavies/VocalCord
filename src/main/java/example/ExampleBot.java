@@ -45,7 +45,7 @@ public class ExampleBot extends ListenerAdapter implements VocalCord.Callbacks {
     @Override
     public boolean onWake(User user) {
 
-        cord.say("Yes, Master?");
+        cord.say("Yes?");
 
         return true;
     }
