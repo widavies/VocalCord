@@ -1,20 +1,14 @@
-package com.gmail.wdavies973.lib;
+package vocalcord;
 
 import com.google.cloud.speech.v1.*;
 import com.google.protobuf.ByteString;
 import net.dv8tion.jda.api.audio.AudioReceiveHandler;
 import net.dv8tion.jda.api.audio.UserAudio;
-import org.apache.commons.io.IOUtils;
 import wakeup.Porcupine;
 
 import javax.annotation.Nonnull;
-import javax.sound.sampled.AudioFileFormat;
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -96,8 +90,6 @@ public class VocalEngine implements AudioReceiveHandler {
         if(porcupine.getFrameLength() != 512 || porcupine.getSampleRate() != 16000) {
             throw new RuntimeException("Porcupine data should be 512 length, 16000 Khz");
         }
-
-
     }
 
     @Override
@@ -107,7 +99,7 @@ public class VocalEngine implements AudioReceiveHandler {
 
     @Override
     public void handleUserAudio(@Nonnull UserAudio userAudio) {
-        if(!userAudio.getUser().getName().contains("bare")) return;
+        if(!userAudio.getUser().getName().contains("tech")) return;
 
         if(collecting) {
             stream.add(userAudio.getAudioData(1));
@@ -119,7 +111,7 @@ public class VocalEngine implements AudioReceiveHandler {
             PorcupineAdapter pa = new PorcupineAdapter(userAudio.getAudioData(1));
             while(pa.hasNext()) {
                 if(porcupine.processFrame(pa.take())) {
-                    System.out.println("WAKE WORD DETECTED!!!!!!!");
+                    System.out.println("WAKE WORD DETECTED!!!!!!!"+userAudio.getAudioData(1).length);
 
                     new Thread() {
                         byte[] pcm;
@@ -137,29 +129,16 @@ public class VocalEngine implements AudioReceiveHandler {
                                             System.out.println("Audio is ready");
 
                                             // Send to google
-                                            /*
-                                             * Step 1: Convert byte array to shorts + LittleEndian
-                                             */
-//                                            byte[] raw = new byte[pcm.length];
-//
-//                                            for(int i = 0, j = 0; i < pcm.length; i += 2, j++) {
-//                                                raw[j] = pcm[i+1];
-//                                                raw[j+1] = pcm[i];
-//                                            }
-//
-//                                            byte[] f = new byte[raw.length / 6];
-//                                            for(int i = 0, j = 0; i < raw.length; i += 6, j++) {
-//                                                f[j] = raw[i];
-//                                            }
-                                            try {
-                                                AudioFormat target = new AudioFormat(16000f, 16, 1, true, false);
-                                                AudioInputStream is = AudioSystem.getAudioInputStream(target, new AudioInputStream(new ByteArrayInputStream(pcm), AudioReceiveHandler.OUTPUT_FORMAT, pcm.length));
-                                                AudioSystem.write(is, AudioFileFormat.Type.WAVE, new File("/mnt/c/Users/wdavi/IdeaProjects/VocalCord/audio.wav"));
-                                                cord.onTranscribed(null, speechRecognition(IOUtils.toByteArray(new FileInputStream(new File("/mnt/c/Users/wdavi/IdeaProjects/VocalCord/audio.wav")))));
-                                            } catch(Exception e) {
-                                                e.printStackTrace();
-                                                System.out.println("Failed to convert!");
+                                            ByteBuffer bb = ByteBuffer.wrap(pcm);
+                                            bb.order(ByteOrder.LITTLE_ENDIAN);
+
+                                            pcm = bb.array();
+                                            byte[] downSample = new byte[pcm.length / 6];
+                                            for(int i = 0, j = 0; i < pcm.length; i += 6, j++) {
+                                                downSample[j] = pcm[i];
                                             }
+
+                                            cord.onTranscribed(null, speechRecognition(downSample));
 
                                             reset();
                                             join();

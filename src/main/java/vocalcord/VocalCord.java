@@ -1,4 +1,4 @@
-package com.gmail.wdavies973.lib;
+package vocalcord;
 
 import net.dv8tion.jda.api.entities.User;
 
