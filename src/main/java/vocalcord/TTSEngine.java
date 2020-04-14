@@ -34,7 +34,7 @@ public class TTSEngine implements AudioSendHandler {
 
     public byte[] tts(String text) throws Exception {
         try(TextToSpeechClient client = TextToSpeechClient.create()) {
-            SynthesisInput input = SynthesisInput.newBuilder().setText(text).build();
+            SynthesisInput input = SynthesisInput.newBuilder().setSsml(text).build();
 
             VoiceSelectionParams voice = VoiceSelectionParams.newBuilder().setLanguageCode("en-US").setSsmlGender(config.voiceGender).build();
 

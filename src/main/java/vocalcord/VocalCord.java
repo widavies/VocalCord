@@ -116,7 +116,6 @@ public class VocalCord {
                 e.printStackTrace();
             }
 
-
         }
     }
 
@@ -126,4 +125,7 @@ public class VocalCord {
 // command detection
 // tts caching and auto-caching
 // cancel bot
+// continuation phrase
+// listening mode
+// pause in TTS
 }

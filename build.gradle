@@ -20,17 +20,21 @@ dependencies {
     implementation 'com.google.cloud:google-cloud-texttospeech:1.0.2'
 }
 
+// download porcupine if it doesn't already exist
+// compile the java class
+// compile the porcupine library with it
+
 buildscript {
     repositories {
         mavenCentral()
     }
 }
 
-//task execute(type: JavaExec) {
-//    main = "example.ExampleBot"
-//    environment "LD_LIBRARY_PATH", "wake-engine/jni"
-//    // environment "LD_DEBUG", "libs"
-//
-//    // systemProperty "java.library.path", "$project.rootDir/wake-engine/jni"
-//    classpath = sourceSets.main.runtimeClasspath
-//}
+task execute(type: JavaExec) {
+    main = "example.ExampleBot"
+    environment "LD_LIBRARY_PATH", "wake-engine/jni"
+    // environment "LD_DEBUG", "libs"
+
+    // systemProperty "java.library.path", "$project.rootDir/wake-engine/jni"
+    classpath = sourceSets.main.runtimeClasspath
+}

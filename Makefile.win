@@ -6,23 +6,28 @@ wake-engine: wake-engine/Porcupine wake-engine/jni/libjava_porcupine.dll src/mai
 
 # This downloads the latest Porcupine Github repository
 wake-engine/Porcupine:
-	mkdir -p wake-engine
+	md -p wake-engine
 	cd wake-engine && git clone git@github.com:Picovoice/Porcupine.git
-	cp wake-engine/Porcupine/lib/linux/x86_64/libpv_porcupine.dll wake-engine/jni/libpv_porcupine.dll
+	cp wake-engine/Porcupine/lib/windows/amd64/libpv_porcupine.dll wake-engine/jni/libpv_porcupine.dll
 
 src/main/java/wakeup/Porcupine.class wake-engine/jni/wakeup_Porcupine.h: src/main/java/wakeup/Porcupine.java
-	mkdir -p wake-engine/jni
+	md -p wake-engine/jni
 	javac -h wake-engine/jni src/main/java/wakeup/Porcupine.java
 
 # Compiles the c files
 # https://stackoverflow.com/questions/14788345/how-to-install-the-jdk-on-ubuntu-linux
 wake-engine/jni/libjava_porcupine.dll: wake-engine/jni/wakeup_Porcupine.h src/main/c/porcupine.c
 	gcc -shared -O3 \
-		-I/usr/include \
-		-I/usr/lib/jvm/java-8-openjdk-amd64/include \
-		-I/usr/lib/jvm/java-8-openjdk-amd64/include/linux \
-		-Iwake-engine/Porcupine/include \
-		-Iwake-engine/jni \
+		-I "C:\Program Files\Java\jdk-14.0.1\include" \
+		-I "C:\Program Files\Java\jdk-14.0.1\include\win32" \
+		-I wake-engine/Porcupine/include \
+		-I wake-engine/jni \
 		src/main/c/porcupine.c \
-		wake-engine/Porcupine/lib/linux/x86_64/libpv_porcupine.dll \
-		-o wake-engine/jni/libjava_porcupine.dll
+		-o wake-engine/jni/libjava_porcupine.dll \
+		-Lwake-engine/Porcupine/lib/windows/amd64 \
+		-lpv_porcupine
+
+# cl /I "C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\ucrt" /I "wake-engine\Porcupine\include" /I "wake-engine\jni" /I "C:\Program Files\Java\jdk-14.0.1\include" /I "C:\Program Files\Java\jdk-14.0.1\include\win32" src/main/c/porcupine.c
+# cl /I "wake-engine\Porcupine\include" /I "wake-engine\jni" /I "C:\Program Files\Java\jdk-14.0.1\include" /I "C:\Program Files\Java\jdk-14.0.1\include\win32" src/main/c/porcupine.c /DLL
+# https://stackoverflow.com/questions/9946322/how-to-generate-an-import-library-lib-file-from-a-dll
+# cl /I "wake-engine\Porcupine\include" /I "wake-engine\jni" /I "C:\Program Files\Java\jdk-14.0.1\include" /I "C:\Program Files\Java\jdk-14.0.1\include\win32" /LD src/main/c/porcupine.c

@@ -20,6 +20,7 @@ JNIEXPORT jlong JNICALL Java_wakeup_Porcupine_init
 
     printf("Initializing Porcupine, using keyword directory %s...\n", (char *)keyword);
     printf("Settings file %s\n", model);
+    printf("Testing");
 
     pv_porcupine_t *handle;
 

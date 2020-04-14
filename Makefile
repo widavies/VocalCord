@@ -19,8 +19,8 @@ src/main/java/wakeup/Porcupine.class wake-engine/jni/wakeup_Porcupine.h: src/mai
 wake-engine/jni/libjava_porcupine.so: wake-engine/jni/wakeup_Porcupine.h src/main/c/porcupine.c
 	gcc -shared -O3 \
 		-I/usr/include \
-		-I/usr/lib/jvm/java-8-openjdk-amd64/include \
-		-I/usr/lib/jvm/java-8-openjdk-amd64/include/linux \
+		-I/usr/lib/jvm/java-14-oracle/include \
+		-I/usr/lib/jvm/java-14-oracle/include/linux \
 		-Iwake-engine/Porcupine/include \
 		-Iwake-engine/jni \
 		src/main/c/porcupine.c \
