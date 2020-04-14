@@ -14,10 +14,12 @@ repositories {
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'net.dv8tion:JDA:4.1.1_122'
-    implementation 'com.google.cloud:google-cloud-speech:1.22.5'
-    implementation "com.google.cloud:google-cloud-texttospeech:0.45.0-beta"
 
+    implementation 'net.dv8tion:JDA:4.1.1_136'
+    implementation 'com.google.cloud:google-cloud-speech:1.22.6'
+    implementation 'com.google.cloud:google-cloud-texttospeech:1.0.2'
+
+    implementation group: 'commons-io', name: 'commons-io', version: '2.6'
 }
 
 buildscript {

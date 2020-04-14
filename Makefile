@@ -1,5 +1,3 @@
-WAKE_PHRASE := hey porcupine
-
 # If you want to execute with make
 #default: wake-engine
 #	LD_LIBRARY_PATH="wake-engine/jni" gradle execute # LD_DEBUG=libs
