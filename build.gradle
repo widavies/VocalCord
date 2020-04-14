@@ -16,6 +16,10 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'net.dv8tion:JDA:4.1.1_122'
     implementation 'com.google.cloud:google-cloud-speech:1.22.5'
+    implementation group: 'commons-io', name: 'commons-io', version: '2.6'
+    implementation "com.google.cloud:google-cloud-texttospeech:0.45.0-beta"
+    implementation 'com.sedmelluq:lavaplayer:1.3.47'
+
 }
 
 buildscript {
