@@ -17,6 +17,7 @@ so if you're eager to get started, do this right away.
 2) Under the "Wake Words" utility, enter your wake phrase into the "Phrase" box. I haven't had much feedback yet about how carried away you can get with wake words, but as it takes three hours, I would recommend trying to choose crisp, unambigious words that Porcupine is unlikely to get confused with similar words.
 3) For Linux, select ```Linux (x86_64)```. For Windows, select ```Windows (x86_64)```.
 4) Click "Train" to begin training the model. Check back in about 3 hours.
+5) VocalCord supports multiple wake phrases at once or even different wake phrases for different users. Generate a wake phrase model for each wakeup phrase you'd like to use.
 ### Discord Bot
 1) Go to the [Discord Developer Console](https://discordapp.com/developers/applications) and click "New application".
 2) On the left sidebar of the application view, selected "Bot"
@@ -32,6 +33,15 @@ so if you're eager to get started, do this right away.
 3) Once your project is created, click the "APIs & Services" card.
 4) From here, select the "Dashboard" tab on the left sidebar, click "Enable APIs and Services"
 5) Search for and enable ````Cloud Speech-to-Text API``` and ```Cloud Text-to-Speech API```
-6) On the left sidebar, select "Credentials", then under "Service Accounts", selected "Manage service accounts". Give your service account a name, and everything at its default. You will need to click the "Create Key" button, make sure JSON is selected, and hit "Create". This will download a JSON file. This is your credentials for using Google APIs, keep it secret!
-
+6) On the left sidebar, select "Credentials", then under "Service Accounts", selected "Manage service accounts". Give your service account a name, and everything at its default. You will need to click the "Create Key" button, make sure JSON is selected, and hit "Create". This will download a JSON file. This is your credentials for using Google APIs, keep it secret! Save it to a location where you will remember where it is.
+### Environment
+#### Windows
+1) You will need to add an environment variable named ```GOOGLE_APPLICATION_CREDENTIALS``` where its value is the path to the Google Credential JSON file you downloaded in the last step.
+2) On Windows, open the start menu and search "Edit the system environment variables". Click "Environment Variables" and under System Variables, click "New"
+3) For "Variable name", enter ```GOOGLE_APPLICATION_CREDENTIALS```
+4) For "Variable value", enter the path to your Google Credentials JSON, for example: ```C:\Users\wdavi\IdeaProjects\VocalCord\vocalcord-gcs.json```. It does not matter where you put this .json file on your system, as long as the PATH points correctly to it.
+#### Linux
+1) Edit your ```.bashrc``` file by entering ```sudo nano ~/.bashrc```
+2) Add the line ```export GOOGLE_APPLICATION_CREDENTIALS="path-to-google-creds.JSON"``` to the end of the file and save. Example: ```export GOOGLE_APPLICATION_CREDENTIALS="/mnt/c/Users/wdavi/IdeaProjects/VocalCord/vocalcord-gcs.json"```
+3) Restart your terminal for this change to take effect.
 
