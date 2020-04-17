@@ -24,5 +24,7 @@ wake-engine/jni/libjava_porcupine.so: wake-engine/jni/wakeup_Porcupine.h src/mai
 		-Iwake-engine/Porcupine/include \
 		-Iwake-engine/jni \
 		src/main/c/porcupine.c \
-		wake-engine/Porcupine/lib/linux/x86_64/libpv_porcupine.so \
-		-o wake-engine/jni/libjava_porcupine.so
+		-o native/linux/libjni_porcupine.so \
+		-fPIC
+
+#wake-engine/Porcupine/lib/linux/x86_64/libpv_porcupine.so \
