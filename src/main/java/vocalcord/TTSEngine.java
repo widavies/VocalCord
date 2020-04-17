@@ -5,8 +5,6 @@ import com.google.protobuf.ByteString;
 import net.dv8tion.jda.api.audio.AudioSendHandler;
 
 import javax.annotation.Nullable;
-import java.io.BufferedOutputStream;
-import java.io.FileOutputStream;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 
@@ -14,8 +12,6 @@ import java.util.HashMap;
  * Text to speech engine
  */
 public class TTSEngine implements AudioSendHandler {
-
-    private final VocalCord.Builder config;
 
     public static final int AUDIO_FRAME = 3840; // 48000 / 50 (number of 20 ms in a second) * 2 (16-bit samples) * 2 (channels)
 
@@ -25,8 +21,7 @@ public class TTSEngine implements AudioSendHandler {
 
     private HashMap<String, byte[]> cache = new HashMap<>();
 
-    public TTSEngine(VocalCord.Builder config) {
-        this.config = config;
+    public TTSEngine() {
         this.out = new byte[0];
 
         // Load the cache
@@ -36,7 +31,7 @@ public class TTSEngine implements AudioSendHandler {
         try(TextToSpeechClient client = TextToSpeechClient.create()) {
             SynthesisInput input = SynthesisInput.newBuilder().setSsml(text).build();
 
-            VoiceSelectionParams voice = VoiceSelectionParams.newBuilder().setLanguageCode("en-US").setSsmlGender(config.voiceGender).build();
+            VoiceSelectionParams voice = VoiceSelectionParams.newBuilder().setLanguageCode("en-US").setSsmlGender(VocalCord.getConfig().voiceGender).build();
 
             AudioConfig audioConfig = AudioConfig.newBuilder().setAudioEncoding(AudioEncoding.LINEAR16).setSampleRateHertz(48_000).build();
 

@@ -16,7 +16,15 @@ public class ExampleBot extends ListenerAdapter implements VocalCord.Callbacks {
     private VocalCord cord;
 
     public ExampleBot() {
-        cord = new VocalCord.Builder(this).withTTS(SsmlVoiceGender.MALE).build();
+        // Windows
+        cord = VocalCord.newConfig(this).withWakeDetection("C:\\Users\\wdavi\\IdeaProjects\\VocalCord\\native\\windows\\libjni_porcupine.dll",
+                "C:\\Users\\wdavi\\IdeaProjects\\VocalCord\\native\\windows\\libpv_porcupine.dll", "C:\\Users\\wdavi\\IdeaProjects\\VocalCord\\native\\porcupine_params.pv",
+                0.5f, "C:\\Users\\wdavi\\IdeaProjects\\VocalCord\\phrases\\hey_bot_windows.ppn").withTTS(SsmlVoiceGender.MALE).build();
+        
+        // Linux (using WSL)
+//        cord = VocalCord.newConfig(this).withWakeDetection("/mnt/c/Users/wdavi/IdeaProjects/VocalCord/native/linux/libjni_porcupine.so",
+//                "/mnt/c/Users/wdavi/IdeaProjects/VocalCord/native/linux/libpv_porcupine.so", "/mnt/c/Users/wdavi/IdeaProjects/VocalCord/native/porcupine_params.pv",
+//                0.5f, "/mnt/c/Users/wdavi/IdeaProjects/VocalCord/phrases/hey_bot_linux.ppn").withTTS(SsmlVoiceGender.MALE).build();
     }
 
     public static void main(String[] args) throws Exception {

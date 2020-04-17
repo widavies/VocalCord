@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <wakeup_Porcupine.h>
 #include <pv_porcupine.h>
+#include <stdlib.h>
 
 #ifdef _WIN32
     #include <windows.h>
@@ -90,7 +91,7 @@ JNIEXPORT jint JNICALL Java_wakeup_Porcupine_getSampleRate (JNIEnv *env, jobject
 }
 
 JNIEXPORT jlong JNICALL Java_wakeup_Porcupine_init
-    (JNIEnv *env, jobject obj, jstring porcupine_location_raw, jstring model_raw, jstring keyword_raw, jfloat sens) {
+    (JNIEnv *env, jobject obj, jstring porcupine_location_raw, jstring model_raw, jfloat sens, jobjectArray wakePhrasesRaw) {
 
     const char * porcupine_location = (*env)->GetStringUTFChars(env, porcupine_location_raw, 0);
 
@@ -100,37 +101,47 @@ JNIEXPORT jlong JNICALL Java_wakeup_Porcupine_init
         loadSO(porcupine_location);
     #endif
 
-    const char *model = (*env)->GetStringUTFChars(env, model_raw, 0);
-    const char * keyword = (*env)->GetStringUTFChars(env, keyword_raw, 0);
-
-    printf("Initializing Porcupine, using keyword directory %s...\n", (char *)keyword);
-    printf("Settings file %s\n", model);
+    const char * model = (*env)->GetStringUTFChars(env, model_raw, 0);
 
     pv_porcupine_t *handle;
 
-    float sensArr[1];
-    sensArr[0] = 1;
+    int numWakePhrases = (*env)->GetArrayLength(env, wakePhrasesRaw);
 
-    const char * keyword_paths[1] = { keyword };
+    const char ** wakeup_phrase_paths = malloc(numWakePhrases * sizeof(char *));
+
+    float * sensArr = malloc(sizeof(float) * numWakePhrases);
+
+    for(int i = 0; i < (int)numWakePhrases; i++) {
+        sensArr[i] = (float)sens;
+
+        jstring path_raw = (jstring) (*env)->GetObjectArrayElement(env, wakePhrasesRaw, i);
+        const char * path = (*env)->GetStringUTFChars(env, path_raw, 0);
+
+        wakeup_phrase_paths[i] = path;
+
+        (*env)->ReleaseStringUTFChars(env, path_raw, path);
+    }
 
     #ifdef _WIN32
-       const pv_status_t status = f_init(model, 1, keyword_paths, sensArr, &handle);
+       const pv_status_t status = f_init(model, 1, wakeup_phrase_paths, sensArr, &handle);
     #else
-       const pv_status_t status = (*f_init)(model, 1, keyword_paths, sensArr, &handle);
+       const pv_status_t status = (*f_init)(model, 1, wakeup_phrase_paths, sensArr, &handle);
     #endif
 
     if (status != PV_STATUS_SUCCESS) {
        printf("Error: Failed to initialise the Porcupine instance.");
     }
 
+    free(sensArr);
+    free(wakeup_phrase_paths);
+
     (*env)->ReleaseStringUTFChars(env, model_raw, model);
-    (*env)->ReleaseStringUTFChars(env, keyword_raw, keyword);
     (*env)->ReleaseStringUTFChars(env, porcupine_location_raw, porcupine_location);
 
     return (long long)handle;
 }
 
-JNIEXPORT jboolean JNICALL Java_wakeup_Porcupine_process (JNIEnv *env, jobject obj, jlong handle, jshortArray pcm_raw) {
+JNIEXPORT jint JNICALL Java_wakeup_Porcupine_process (JNIEnv *env, jobject obj, jlong handle, jshortArray pcm_raw) {
     jshort *pcm = (*env)->GetShortArrayElements(env, pcm_raw, 0);
     int32_t keyword_index;
 
@@ -142,8 +153,7 @@ JNIEXPORT jboolean JNICALL Java_wakeup_Porcupine_process (JNIEnv *env, jobject o
 
     (*env)->ReleaseShortArrayElements(env, pcm_raw, pcm, 0);
 
-    bool result = keyword_index != -1;
-    return result;
+    return keyword_index;
 }
 
 JNIEXPORT void JNICALL Java_wakeup_Porcupine_delete

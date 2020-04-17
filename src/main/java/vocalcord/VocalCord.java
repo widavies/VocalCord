@@ -6,8 +6,6 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.managers.AudioManager;
 
-import javax.annotation.Nonnull;
-
 public class VocalCord {
 
     public interface Callbacks {
@@ -31,11 +29,32 @@ public class VocalCord {
         boolean onWake(User user);
     }
 
-    public static class Builder {
+    private static Config CONFIG;
+
+    public static Config newConfig(Callbacks callbacks) {
+        CONFIG = new Config();
+        CONFIG.callbacks = callbacks;
+        return CONFIG;
+    }
+
+    public static Config getConfig() {
+        return CONFIG;
+    }
+
+    public static class Config {
         Callbacks callbacks;
         AudioSendHandler audioSendHandler;
-        float sensitivity;
-        String porcupineParams, keywordPath;
+        /*
+         * Wake detection
+         */
+        public String jniLocation, porcupineLocation; // dynamic library locations
+        public String porcupineParams;
+        public String[] wakePhrasePaths;
+        public float sensitivity;
+
+        /*
+         * TTS settings
+         */
         String languageCode;
         boolean usingTTS;
         SsmlVoiceGender voiceGender;
@@ -46,45 +65,57 @@ public class VocalCord {
             Combine
         }
 
-        public Builder(@Nonnull Callbacks callbacks) {
-            this.callbacks = callbacks;
+        private Config() {
         }
 
+        ;
+
         // volume mix percentage?
-        public Builder withSendMultiplexer(AudioSendHandler audioSendHandler, MultiplexMode multiplexMode) {
+        public Config withSendMultiplexer(AudioSendHandler audioSendHandler, MultiplexMode multiplexMode) {
             this.audioSendHandler = audioSendHandler;
             this.multiplexMode = multiplexMode;
             return this;
         }
 
-        public Builder withWakeDetection(float sensitivity, String porcupineParams, String keywordPath) {
+        public Config withWakeDetectionDefaults(float sensitivity, String... wakePhrasePaths) {
+            String os = System.getProperty("os.name").toLowerCase();
+
+            if(os.contains("win")) {
+                return withWakeDetection("native\\windows\\libjni_porcupine.dll", "native\\windows\\libpv_porcupine.dll",
+                        "wake-engine\\Porcupine\\lib\\common\\porcupine_params.pv", sensitivity, wakePhrasePaths);
+            } else {
+                return withWakeDetection("native\\linux\\libjni_porcupine.so", "native\\linux\\libpv_porcupine.so",
+                        "wake-engine\\Porcupine\\lib\\common\\porcupine_params.pv", sensitivity, wakePhrasePaths);
+            }
+        }
+
+        public Config withWakeDetection(String jniLocation, String porcupineLocation, String porcupineParams, float sensitivity, String... wakePhrasePaths) {
+            this.jniLocation = jniLocation;
+            this.porcupineLocation = porcupineLocation;
             this.sensitivity = sensitivity;
             this.porcupineParams = porcupineParams;
-            this.keywordPath = keywordPath;
+            this.wakePhrasePaths = wakePhrasePaths;
             return this;
         }
 
         // https://www.cardinalpath.com/resources/tools/google-analytics-language-codes/
-        public Builder withLanguage(String languageCode) {
+        public Config withLanguage(String languageCode) {
             this.languageCode = languageCode;
             return this;
         }
 
-        public Builder withTTS(SsmlVoiceGender voiceGender) {
+        public Config withTTS(SsmlVoiceGender voiceGender) {
             usingTTS = true;
             this.voiceGender = voiceGender;
             return this;
         }
 
         public VocalCord build() {
-            VocalCord cord = new VocalCord();
-            cord.config = this;
-            return cord;
+            // Verify arguments
+            return new VocalCord();
         }
 
     }
-
-    Builder config;
 
     private TTSEngine ttsEngine;
 
@@ -104,8 +135,10 @@ public class VocalCord {
         AudioManager manager = voiceChannel.getGuild().getAudioManager();
         manager.openAudioConnection(voiceChannel);
 
-        if(config.usingTTS) {
-            ttsEngine = new TTSEngine(config);
+        Config cfg = VocalCord.getConfig();
+
+        if(cfg.usingTTS) {
+            ttsEngine = new TTSEngine();
             manager.setSendingHandler(ttsEngine);
             manager.setReceivingHandler(new STTEngine(this));
             try {

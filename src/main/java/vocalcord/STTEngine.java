@@ -24,7 +24,7 @@ public class STTEngine implements AudioReceiveHandler {
         this.cord = cord;
 
         try {
-            this.us = new UserStream(cord.config);
+            this.us = new UserStream();
         } catch(Exception e) {
             e.printStackTrace();
         }
@@ -36,7 +36,7 @@ public class STTEngine implements AudioReceiveHandler {
                 if(us.readyForTranscription()) {
                     byte[] audio = us.getAudioForGoogle();
                     us.sleep();
-                    cord.config.callbacks.onTranscribed(null, speechRecognition(audio)); // thread pool for this? TODO
+                    VocalCord.getConfig().callbacks.onTranscribed(null, speechRecognition(audio)); // thread pool for this? TODO
                 }
             }
         }, 0, 1);

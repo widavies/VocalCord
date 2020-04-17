@@ -6,7 +6,7 @@ wrapper over the ```libpv_porcupine.dll``` Porcupine dynamic library. If someone
 1) First, make a directory for Porcupine to reside in: ```mkdir -p wake-engine```
 2) Clone: ```cd wake-engine && git clone git@github.com:Picovoice/Porcupine.git```
 2) Ensure back in top directory: ```VocalCord/```
-3) Create the JNI header file: ```javac -h wake-native/jni src/main/java/wakeup/Porcupine.java```
+3) Create the JNI header file: ```javac -h native/jni src/main/java/wakeup/Porcupine.java```
 4) You will need to have Microsoft Visual Studio installed using C/C++ build tools. Then, click start, go to the Visual Studio 2019 folder and
 launch ```x86_x64 Cross Tools Command Prompt for VS 2019```. Then, within that prompt, CD to the ```VocalCord/``` directory. You can also optionally use MinGW 64-bit for Windows (skip to step 8).
 5) Compile using: ```cl /I "wake-engine\Porcupine\include" /I "native\jni" /I "C:\Program Files\Java\{YOUR-JAVA-VERSION-HERE}\include" /I "C:\Program Files\Java\{YOUR-JAVA-VERSION-HERE}\include\win32" /LD src/main/c/porcupine.c```

@@ -53,15 +53,12 @@ public class UserStream {
         }
     }
 
-    private VocalCord.Builder config;
-
     private User user;
 
-    public UserStream(VocalCord.Builder config) throws Exception {
-        this.config = config;
-
+    public UserStream() throws Exception {
         //porcupine = new Porcupine("C:\\Users\\wdavi\\IdeaProjects\\VocalCord\\wake-engine\\Porcupine\\lib\\common\\porcupine_params.pv", "C:\\Users\\wdavi\\IdeaProjects\\VocalCord\\phrases\\hey_bot_windows.ppn", 0.5f);
-        porcupine = new Porcupine("/mnt/c/Users/wdavi/IdeaProjects/VocalCord/wake-engine/Porcupine/lib/common/porcupine_params.pv", "/mnt/c/Users/wdavi/IdeaProjects/VocalCord/phrases/hey_bot_linux.ppn", 0.5f);
+        //porcupine = new Porcupine("/mnt/c/Users/wdavi/IdeaProjects/VocalCord/wake-engine/Porcupine/lib/common/porcupine_params.pv", "/mnt/c/Users/wdavi/IdeaProjects/VocalCord/phrases/hey_bot_linux.ppn", 0.5f);
+        porcupine = new Porcupine();
 
         if(porcupine.getFrameLength() != 512 || porcupine.getSampleRate() != 16000) {
             throw new RuntimeException("The underlying porcupine binaries do not have the expected configuration.");
@@ -72,9 +69,9 @@ public class UserStream {
         if(!awake) {
             try {
                 PorcupineAdapter pa = new PorcupineAdapter(audio);
-                if(porcupine.processFrame(pa.take())) {
+                if(porcupine.processFrame(pa.take()) != -1) {
                     System.out.println("WAKE WORD DETECTED");
-                    if(config.callbacks.onWake(user)) {
+                    if(VocalCord.getConfig().callbacks.onWake(user)) {
                         awake = true;
                         phrase = new byte[3840 * 50 * 5]; // by default, holds 5 seconds of data
                         phraseBegun = false;
