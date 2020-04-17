@@ -1,16 +1,30 @@
 # VocalCord
 Giving Discord bots a voice with speech recognition and text to speech.
 
-# Under Construction
-VocalCord is currently under a complete rewrite. Expect a new release soon.
-
 # How does it work?
-VocalCord receives audio data from Discord through the [JDA](https://github.com/DV8FromTheWorld/JDA) Java Discord API library. VocalCord will passively process audio data using [Porcupine](https://github.com/Picovoice/porcupine) to listen for the wake phrase. This library is free for non-commerical use, and works quite well. As soon as the wake phrase is detected, Porcupine will pass control to Google Cloud Speech to process the subsequent voice command. Google Cloud Speech API gives you 60 minutes of free audio recognition per month, with a small fee for going over. 
-
-# Integrating
-VocalCord abstracts you away from all the sound processing and provides a simple interface to configure your wake phrases, user permissions, and voice commands. VocalCord is not a complete bot, it won't work on its own. VocalCord is an existing plugin for any JDA bots you'd like to voice-enable and requires you to implement voice command procedures and any other functionality you'd like on your own. This is the most flexible for users. Development with VocalCord is very similar to developing a JDA bot. However, Porcupine does not have a Java version, so instead VocalCord uses the Java Native Interface to communicate with the Porcupine C binaries. The tooling for this is a bit complicated and requires you to use Linux (for ```make```, ```gcc```, and other utils), but will add hair to your chest. I developed VocalCord on Windows using WSL, which worked great for me. I may add native Windows support in the future, but as I suspect most bots are hosted on Linux anyway, I don't see this as a huge issue right now.
+- VocalCord is a _library_, not a standalone bot. VocalCord is built on the excellent [JDA](https://github.com/DV8FromTheWorld/JDA), providing a dead simple wrapper to receive voice transcripts and generate speech audio. VocalCord is a tool to build whatever you imagination decides.
+- [Porcupine](https://github.com/Picovoice/porcupine) is used for wake detection, it's incredibly accurate and works consistently well.
+- [Google Speech to Text](https://cloud.google.com/speech-to-text) is used for speech recognition, it's decently fast and provides accurate transcripts.
+- [Google Text to Speech](https://cloud.google.com/text-to-speech/) is used for text to speech generation, it works great and is fast.
+- VocalCord officially supports Windows and Linux
 
 # Setup
-1) Currently, Linux is required to compile the library. I highly recommend using [WSL](https://docs.microsoft.com/en-us/windows/wsl/install-win10) if you're on Windows.
-2) Before you do anything, you need to train a model based off what you'd like your wake phrase to be. Make sure your wake phrase is non-ambigious ("bot" may get confused with "bought"). On the [Picovoice Console](https://console.picovoice.ai/ppn), draft a new wake word, enter your wake phrase and select ```Linux(x86_64)``` for the platform. You may train multiple wake phrases for your bot if you'd like. Make sure to do this right away if you're eager to get started, because the model takes around 3 hours to train before you can download it.
-3) 
+### Porcupine Wake phrases
+Porcupine requires you to build a wake phrase AI model for every wake phrase you'd like to use. This process can take about 3 hours,
+so if you're eager to get started, do this right away.
+
+1) Create a Porcupine account at [Picovoice Console](https://console.picovoice.ai/ppn)
+2) Under the "Wake Words" utility, enter your wake phrase into the "Phrase" box. I haven't had much feedback yet about how carried away you can get with wake words, but as it takes three hours, I would recommend trying to choose crisp, unambigious words that Porcupine is unlikely to get confused with similar words.
+3) For Linux, select ```Linux (x86_64)```. For Windows, select ```Windows (x86_64)```.
+4) Click "Train" to begin training the model. Check back in about 3 hours.
+### Discord Bot
+1) Go to the [Discord Developer Console](https://discordapp.com/developers/applications) and click "New application".
+2) On the left sidebar of the application view, selected "Bot"
+3) Click "Add Bot"
+4) Click "Copy" under the token header. This is your Discord bot token, put it in a safe place.
+5) Select the "OAuth2" tab on the left sidebar
+6) Under "Scopes" make sure "bot" is checked.
+7) Enable any permissions your bot will utilize under the "Bot permissions" header. You will need to check ```Connect```, ```Speak```, and ```Use Voice Activity``` to use speech recognition and generation facilities.
+8) Discord will auto generate a link for you, copy this link and paste it into your browser. From here, you may select which server you'd like to add the bot to.
+### 
+
