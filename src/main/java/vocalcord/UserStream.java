@@ -104,6 +104,8 @@ class UserStream {
         }
     }
 
+    // TODO user stream destruction
+
     public boolean readyForTranscription() {
         if(!awake) return false;
 

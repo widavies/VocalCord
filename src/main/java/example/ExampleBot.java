@@ -8,6 +8,7 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import vocalcord.CommandChain;
 import vocalcord.VocalCord;
 
 // Create a template JDA bot using this guide: https://github.com/DV8FromTheWorld/JDA/wiki/3)-Getting-Started
@@ -37,12 +38,13 @@ public class ExampleBot extends ListenerAdapter implements VocalCord.Callbacks {
     }
 
     @Override
-    public void onTranscribed(User user, String transcript) {
+    public CommandChain onTranscribed(User user, String transcript) {
         System.out.println(transcript);
 
         transcript = transcript.toLowerCase();
 
         // cord.say(transcript);
+        return new CommandChain();
     }
 
     @Override

@@ -15,7 +15,7 @@ public class VocalCord {
          * @param user       The user that issued the command
          * @param transcript VocalCord's (Google's) best guess of what the user said in Discord.
          */
-        void onTranscribed(User user, String transcript);
+        CommandChain onTranscribed(User user, String transcript);
 
         boolean canWakeBot(User user);
 
@@ -207,6 +207,7 @@ public class VocalCord {
     // command detection
     // cancel bot (a way to cancel an in progress request)
     // clean up voice timings
+    // documentation
 
     // release
 
