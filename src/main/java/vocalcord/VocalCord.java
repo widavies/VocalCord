@@ -15,7 +15,12 @@ public class VocalCord {
          * @param user       The user that issued the command
          * @param transcript VocalCord's (Google's) best guess of what the user said in Discord.
          */
-        CommandChain onTranscribed(User user, String transcript);
+        default void onTranscribed(User user, String transcript) {
+        }
+
+        default CommandChain onTranscribed() {
+            return null;
+        }
 
         boolean canWakeBot(User user);
 
@@ -28,7 +33,7 @@ public class VocalCord {
          *
          * @return true if the bot should start listening to what the user has to say, or false to deny the wakeup request
          */
-        void onWake(User user, int keywordIndex);
+        void onWake(UserStream userStream, int keywordIndex);
     }
 
     private static Config CONFIG;
@@ -45,7 +50,6 @@ public class VocalCord {
 
     public static class Config {
         public Callbacks callbacks;
-        AudioSendHandler audioSendHandler;
         /*
          * Wake detection
          */
@@ -62,6 +66,14 @@ public class VocalCord {
         SsmlVoiceGender voiceGender;
         SendMultiplex sendMultiplex;
 
+        /*
+         * Phrase detection stuff
+         */
+        int beginTimeLimit = 4000;
+        int endThreshold = 600;
+        int maximumPhraseLength = 20;
+        int userStreamLife = 15;
+
         public static class SendMultiplex {
             enum MultiplexMode {
                 None,
@@ -73,7 +85,8 @@ public class VocalCord {
             AudioSendHandler[] handlers;
             float blendBalance;
 
-            private SendMultiplex() {}
+            private SendMultiplex() {
+            }
 
             public static SendMultiplex None() {
                 return new SendMultiplex();
@@ -93,7 +106,7 @@ public class VocalCord {
             /*
              * Blend ratio between 0 and 1
              */
-            public static SendMultiplex Blend(float blendRatio, AudioSendHandler ... sendHandlers) {
+            public static SendMultiplex Blend(float blendRatio, AudioSendHandler... sendHandlers) {
                 throw new UnsupportedOperationException("Blend mode is not supported yet.");
 
 //                if(blendRatio < 0 || blendRatio > 1) {
@@ -110,7 +123,8 @@ public class VocalCord {
             }
         }
 
-        private Config() {}
+        private Config() {
+        }
 
         ;
 
@@ -196,17 +210,15 @@ public class VocalCord {
     }
 
     // setup guide
-        // discord bot setup
-        // gradle setup
-        // dll setup
-        // docs - need to update for javac
-        // google cloud setup and configuration
-        // porcupine configuration
+    // discord bot setup
+    // gradle setup
+    // dll setup
+    // docs - need to update for javac
+    // google cloud setup and configuration
+    // cleanup api and shit
+    // porcupine configuration
 
     // gradle deploy
-    // command detection
-    // cancel bot (a way to cancel an in progress request)
-    // clean up voice timings
     // documentation
 
     // release

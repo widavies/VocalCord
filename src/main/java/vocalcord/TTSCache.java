@@ -43,14 +43,16 @@ class TTSCache {
     }
 
     public TTSCache() throws Exception {
-         cacheFile = new File(TTSCache.class.getProtectionDomain().getCodeSource().getLocation().toURI() + File.separator + "vocalcord_phrases.cache");
+         cacheFile = new File(System.getProperty("user.home") + File.separator + ".vocalcord" + File.separator + "vocalcord_phrases.cache");
 
          if(!cacheFile.exists()) {
-             if(cacheFile.createNewFile()) {
+             if(cacheFile.getParentFile().mkdir() && cacheFile.createNewFile()) {
                  cachedPhrases = new HashMap<>();
              } else {
-                 cachedPhrases = load();
+                 throw new RuntimeException("Error creating cache file");
              }
+         } else {
+             cachedPhrases = load();
          }
 
          // Clear considerations every day, this means that a phrase can only be frequent if FREQUENT_THRESHOLD
@@ -113,7 +115,7 @@ class TTSCache {
             fis.close();
             return map;
         } catch(Exception e) {
-            e.printStackTrace();
+            System.out.println("No cached phrases loaded. This probably isn't an error.");
         }
 
         return new HashMap<>();

@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.audio.AudioReceiveHandler;
 import net.dv8tion.jda.api.audio.UserAudio;
 
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.*;
@@ -27,7 +28,37 @@ class STTEngine implements AudioReceiveHandler {
                     byte[] audio = us.getAudioForGoogle();
                     us.sleep();
 
-                    workPool.execute(() -> VocalCord.getConfig().callbacks.onTranscribed(us.getUser(), speechRecognition(audio)));
+                    workPool.execute(() -> {
+                        List<SpeechRecognitionResult> results = speechRecognition(audio);
+
+                        VocalCord.Callbacks callbacks = VocalCord.getConfig().callbacks;
+
+                        CommandChain chain = callbacks.onTranscribed();
+                        if(chain != null) {
+                            CommandChain.CommandCandidate max = null;
+                            double maxSimilarity = -1;
+
+                            for(SpeechRecognitionResult result : results) {
+                                for(SpeechRecognitionAlternative sra : result.getAlternativesList()) {
+                                    CommandChain.CommandCandidate ccs = chain.test(sra.getTranscript());
+                                    if(ccs != null && ccs.similarity > maxSimilarity) {
+                                        maxSimilarity = ccs.similarity;
+                                        max = ccs;
+                                    }
+                                }
+                            }
+
+                            chain.execute(us.getUser(), max);
+                        } else {
+                            if(results.size() > 0 && results.get(0).getAlternativesList().size() > 0) {
+                                callbacks.onTranscribed(us.getUser(), results.get(0).getAlternatives(0).getTranscript());
+                            }
+                        }
+                    });
+                } else if(us.shouldDestroy()) {
+                    us.sleep();
+                    us.destroy();
+                    streams.remove(us.getUser().getId());
                 }
             }
         }
@@ -64,7 +95,7 @@ class STTEngine implements AudioReceiveHandler {
         }
     }
 
-    private String speechRecognition(byte[] pcm) {
+    private List<SpeechRecognitionResult> speechRecognition(byte[] pcm) {
         System.out.println("Accessing Google Cloud Speech API.");
 
         try(SpeechClient speech = SpeechClient.create()) {
@@ -82,16 +113,13 @@ class STTEngine implements AudioReceiveHandler {
 
             // Use blocking call to get speechRecognition transcript
             RecognizeResponse response = speech.recognize(config, audio);
-            List<SpeechRecognitionResult> results = response.getResultsList();
 
-            System.out.println(response.getResultsCount());
-
-            return results.get(0).getAlternativesList().get(0).getTranscript();
+            return  response.getResultsList();
         } catch(Exception e) {
             e.printStackTrace();
             System.err.println("Failed to run Google Cloud speech recognition. Err: " + e.getMessage());
         }
-        return "";
+        return new ArrayList<>();
     }
 
     private double volumeRMS(byte[] raw) { // needs more testing

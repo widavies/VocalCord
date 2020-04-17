@@ -10,15 +10,18 @@ import javax.sound.sampled.AudioSystem;
 import java.io.ByteArrayInputStream;
 import java.util.concurrent.ThreadPoolExecutor;
 
-class UserStream {
+public class UserStream {
 
     private boolean awake;
     private byte[] phrase;
     private boolean phraseBegun;
     private long lastReceivedPacket;
     private int index;
+    private long lastAudioReceived = -1;
 
-    private Porcupine porcupine;
+    private VocalCord.Config config = VocalCord.getConfig();
+
+    private final Porcupine porcupine;
 
     /*
      * Converts Discord PCM to the audio format required by Porcupine
@@ -66,6 +69,8 @@ class UserStream {
     }
 
     public void putAudio(ThreadPoolExecutor workPool, byte[] audio) {
+        lastAudioReceived = System.nanoTime();
+
         if(!awake) {
             try {
                 PorcupineAdapter pa = new PorcupineAdapter(audio);
@@ -74,7 +79,7 @@ class UserStream {
                 if(keywordIndex != -1) {
                     System.out.println("WAKE WORD DETECTED");
 
-                    workPool.execute(() -> VocalCord.getConfig().callbacks.onWake(user, keywordIndex));
+                    workPool.execute(() -> VocalCord.getConfig().callbacks.onWake(this, keywordIndex));
 
                     awake = true;
                     phrase = new byte[3840 * 50 * 5]; // by default, holds 5 seconds of data
@@ -106,7 +111,7 @@ class UserStream {
 
     // TODO user stream destruction
 
-    public boolean readyForTranscription() {
+    boolean readyForTranscription() {
         if(!awake) return false;
 
         // if no packet received in last 2 seconds & phraseBegun, then transcribe
@@ -116,18 +121,24 @@ class UserStream {
 
         long elapsedMs = (System.nanoTime() - lastReceivedPacket) / 1_000_000;
 
-        if(phraseBegun && elapsedMs >= 120) {
+        if(phraseBegun && elapsedMs >= config.endThreshold) {
             System.out.println("Phrase completed");
             return true;
-        } else if(!phraseBegun && elapsedMs >= 5000) {
+        } else if(!phraseBegun && elapsedMs >= config.beginTimeLimit) {
             System.out.println("Phrase never started");
             sleep();
             return false; // user never started talking after waking bot
-        } else if(phrase.length > 3840 * 50 * 15) {
+        } else if(phrase.length > 3840 * 50 * config.maximumPhraseLength) {
             return true;
         }
 
         return false;
+    }
+
+    boolean shouldDestroy() {
+        double elapsedMinutes = (System.nanoTime() - lastAudioReceived) / 1_000_000_000.0 / 60.0;
+
+        return !awake && elapsedMinutes > 3840 * 50 * config.userStreamLife;
     }
 
     public void sleep() {
@@ -135,7 +146,7 @@ class UserStream {
     }
 
     // export GOOGLE_APPLICATION_CREDENTIALS=/mnt/c/Users/wdavi/IdeaProjects/VocalCord/vocalcord-gcs.json
-    public byte[] getAudioForGoogle() {
+    byte[] getAudioForGoogle() {
 //        // Trim
 //        byte[] trimmed = new byte[index];
 //        System.arraycopy(phrase, 0, trimmed, 0, index);
@@ -210,7 +221,7 @@ class UserStream {
 
     }
 
-    public void destroy() {
+    void destroy() {
         porcupine.delete();
     }
 
