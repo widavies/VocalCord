@@ -4,42 +4,38 @@ import com.google.cloud.speech.v1.*;
 import com.google.protobuf.ByteString;
 import net.dv8tion.jda.api.audio.AudioReceiveHandler;
 import net.dv8tion.jda.api.audio.UserAudio;
-import wakeup.Porcupine;
 
 import javax.annotation.Nonnull;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.concurrent.*;
 
-public class STTEngine implements AudioReceiveHandler {
+class STTEngine implements AudioReceiveHandler {
 
-    private VocalCord cord;
-    private UserStream us;
+    private final HashMap<String, UserStream> streams = new HashMap<>();
 
-    private Timer timer;
+    private final ThreadPoolExecutor workPool = new ThreadPoolExecutor(8, 16, 1, TimeUnit.MINUTES, new LinkedBlockingQueue<>());
 
-    private Porcupine porcupine;
+    private class StreamMonitor implements Runnable {
 
-    public STTEngine(VocalCord cord) {
-        this.cord = cord;
+        @Override
+        public void run() {
+            for(String userId : streams.keySet()) {
+                UserStream us = streams.get(userId);
 
-        try {
-            this.us = new UserStream();
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
-
-        timer = new Timer();
-        timer.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
                 if(us.readyForTranscription()) {
                     byte[] audio = us.getAudioForGoogle();
                     us.sleep();
-                    VocalCord.getConfig().callbacks.onTranscribed(null, speechRecognition(audio)); // thread pool for this? TODO
+
+                    workPool.execute(() -> VocalCord.getConfig().callbacks.onTranscribed(us.getUser(), speechRecognition(audio)));
                 }
             }
-        }, 0, 1);
+        }
+    }
+
+    public STTEngine() {
+        ScheduledExecutorService streamDaemon = Executors.newScheduledThreadPool(1);
+        streamDaemon.scheduleAtFixedRate(new StreamMonitor(), 0, 1000, TimeUnit.MICROSECONDS); // 1 ms
     }
 
     @Override
@@ -49,9 +45,23 @@ public class STTEngine implements AudioReceiveHandler {
 
     @Override
     public void handleUserAudio(@Nonnull UserAudio userAudio) {
-        if(!userAudio.getUser().getName().contains("tech")) return;
-
-        us.putAudio(userAudio.getAudioData(1));
+        if(!streams.containsKey(userAudio.getUser().getId())) {
+            try {
+                /*
+                 * Don't track the audio of users who aren't allowed to wake, otherwise resources would be needlessly wasted
+                 * with another Porcupine instance
+                 */
+                if(VocalCord.getConfig().callbacks.canWakeBot(userAudio.getUser())) {
+                    UserStream stream = new UserStream(userAudio.getUser());
+                    stream.putAudio(workPool, userAudio.getAudioData(1));
+                    streams.put(userAudio.getUser().getId(), stream);
+                }
+            } catch(Exception e) {
+                e.printStackTrace();
+            }
+        } else {
+            streams.get(userAudio.getUser().getId()).putAudio(workPool, userAudio.getAudioData(1));
+        }
     }
 
     private String speechRecognition(byte[] pcm) {

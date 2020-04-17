@@ -8,8 +8,9 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import java.io.ByteArrayInputStream;
+import java.util.concurrent.ThreadPoolExecutor;
 
-public class UserStream {
+class UserStream {
 
     private boolean awake;
     private byte[] phrase;
@@ -55,9 +56,8 @@ public class UserStream {
 
     private User user;
 
-    public UserStream() throws Exception {
-        //porcupine = new Porcupine("C:\\Users\\wdavi\\IdeaProjects\\VocalCord\\wake-engine\\Porcupine\\lib\\common\\porcupine_params.pv", "C:\\Users\\wdavi\\IdeaProjects\\VocalCord\\phrases\\hey_bot_windows.ppn", 0.5f);
-        //porcupine = new Porcupine("/mnt/c/Users/wdavi/IdeaProjects/VocalCord/wake-engine/Porcupine/lib/common/porcupine_params.pv", "/mnt/c/Users/wdavi/IdeaProjects/VocalCord/phrases/hey_bot_linux.ppn", 0.5f);
+    public UserStream(User user) throws Exception {
+        this.user = user;
         porcupine = new Porcupine();
 
         if(porcupine.getFrameLength() != 512 || porcupine.getSampleRate() != 16000) {
@@ -65,19 +65,22 @@ public class UserStream {
         }
     }
 
-    public void putAudio(byte[] audio) {
+    public void putAudio(ThreadPoolExecutor workPool, byte[] audio) {
         if(!awake) {
             try {
                 PorcupineAdapter pa = new PorcupineAdapter(audio);
-                if(porcupine.processFrame(pa.take()) != -1) {
+                int keywordIndex = porcupine.processFrame(pa.take());
+
+                if(keywordIndex != -1) {
                     System.out.println("WAKE WORD DETECTED");
-                    if(VocalCord.getConfig().callbacks.onWake(user)) {
-                        awake = true;
-                        phrase = new byte[3840 * 50 * 5]; // by default, holds 5 seconds of data
-                        phraseBegun = false;
-                        lastReceivedPacket = System.nanoTime();
-                        index = 0;
-                    }
+
+                    workPool.execute(() -> VocalCord.getConfig().callbacks.onWake(user, keywordIndex));
+
+                    awake = true;
+                    phrase = new byte[3840 * 50 * 5]; // by default, holds 5 seconds of data
+                    phraseBegun = false;
+                    lastReceivedPacket = System.nanoTime();
+                    index = 0;
                 }
             } catch(Exception e) {
                 e.printStackTrace();
@@ -205,4 +208,11 @@ public class UserStream {
 
     }
 
+    public void destroy() {
+        porcupine.delete();
+    }
+
+    public User getUser() {
+        return user;
+    }
 }

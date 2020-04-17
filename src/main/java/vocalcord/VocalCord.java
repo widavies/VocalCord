@@ -17,6 +17,8 @@ public class VocalCord {
          */
         void onTranscribed(User user, String transcript);
 
+        boolean canWakeBot(User user);
+
         /**
          * This allows you to restrict bot usage to only certain users. If the bot detects a wakeup command,
          * it will call this method. The bot will ONLY start listening for a voice command if this method returns true.
@@ -26,7 +28,7 @@ public class VocalCord {
          *
          * @return true if the bot should start listening to what the user has to say, or false to deny the wakeup request
          */
-        boolean onWake(User user);
+        void onWake(User user, int keywordIndex);
     }
 
     private static Config CONFIG;
@@ -42,7 +44,7 @@ public class VocalCord {
     }
 
     public static class Config {
-        Callbacks callbacks;
+        public Callbacks callbacks;
         AudioSendHandler audioSendHandler;
         /*
          * Wake detection
@@ -56,26 +58,61 @@ public class VocalCord {
          * TTS settings
          */
         String languageCode;
-        boolean usingTTS;
+        boolean usingTTS, usingTTSCache;
         SsmlVoiceGender voiceGender;
-        MultiplexMode multiplexMode;
+        SendMultiplex sendMultiplex;
 
-        public enum MultiplexMode {
-            Switch,
-            Combine
+        public static class SendMultiplex {
+            enum MultiplexMode {
+                None,
+                Switch,
+                Blend;
+            }
+
+            MultiplexMode mode = MultiplexMode.None;
+            AudioSendHandler[] handlers;
+            float blendBalance;
+
+            private SendMultiplex() {}
+
+            public static SendMultiplex None() {
+                return new SendMultiplex();
+            }
+
+            public static SendMultiplex Switch(AudioSendHandler sendHandler) {
+                if(sendHandler == null) {
+                    throw new RuntimeException("Send handler must not be null.");
+                }
+                SendMultiplex m = new SendMultiplex();
+                m.handlers = new AudioSendHandler[1];
+                m.handlers[0] = sendHandler;
+                m.mode = MultiplexMode.Switch;
+                return m;
+            }
+
+            /*
+             * Blend ratio between 0 and 1
+             */
+            public static SendMultiplex Blend(float blendRatio, AudioSendHandler ... sendHandlers) {
+                throw new UnsupportedOperationException("Blend mode is not supported yet.");
+
+//                if(blendRatio < 0 || blendRatio > 1) {
+//                    throw new RuntimeException("Blend ratio must be between 0 and 1.");
+//                } else if(sendHandlers == null || sendHandlers.length == 0) {
+//                    throw new RuntimeException("Must provide at least one audio send handler.");
+//                }
+//
+//                SendMultiplex m = new SendMultiplex();
+//                m.handlers = sendHandlers;
+//                m.mode = MultiplexMode.Blend;
+//                m.blendBalance = blendRatio;
+//                return m;
+            }
         }
 
-        private Config() {
-        }
+        private Config() {}
 
         ;
-
-        // volume mix percentage?
-        public Config withSendMultiplexer(AudioSendHandler audioSendHandler, MultiplexMode multiplexMode) {
-            this.audioSendHandler = audioSendHandler;
-            this.multiplexMode = multiplexMode;
-            return this;
-        }
 
         public Config withWakeDetectionDefaults(float sensitivity, String... wakePhrasePaths) {
             String os = System.getProperty("os.name").toLowerCase();
@@ -104,9 +141,17 @@ public class VocalCord {
             return this;
         }
 
-        public Config withTTS(SsmlVoiceGender voiceGender) {
+        public Config withTTS(SsmlVoiceGender voiceGender, boolean useCaching) {
             usingTTS = true;
+            this.usingTTSCache = useCaching;
             this.voiceGender = voiceGender;
+            this.sendMultiplex = SendMultiplex.None();
+            return this;
+        }
+
+        public Config withTTSMultiplex(SsmlVoiceGender voiceGender, boolean useCaching, SendMultiplex sendMultiplex) {
+            withTTS(voiceGender, useCaching);
+            this.sendMultiplex = sendMultiplex;
             return this;
         }
 
@@ -139,25 +184,33 @@ public class VocalCord {
 
         if(cfg.usingTTS) {
             ttsEngine = new TTSEngine();
-            manager.setSendingHandler(ttsEngine);
-            manager.setReceivingHandler(new STTEngine(this));
-            try {
-                ttsEngine.cache("Yes?");
-                ttsEngine.cache("hello");
-            } catch(Exception e) {
-                e.printStackTrace();
+
+            if(cfg.sendMultiplex.mode != Config.SendMultiplex.MultiplexMode.None) {
+                manager.setSendingHandler(new AudioSendMultiplexer(ttsEngine, cfg.sendMultiplex));
+            } else {
+                manager.setSendingHandler(ttsEngine);
             }
 
+            manager.setReceivingHandler(new STTEngine());
         }
     }
 
-// features - multiple keywords
-// update packages
-// gradle deploy
-// command detection
-// tts caching and auto-caching
-// cancel bot
-// continuation phrase
-// listening mode
-// pause in TTS
+    // setup guide
+        // discord bot setup
+        // gradle setup
+        // dll setup
+        // docs - need to update for javac
+        // google cloud setup and configuration
+        // porcupine configuration
+
+    // gradle deploy
+    // command detection
+    // cancel bot (a way to cancel an in progress request)
+    // clean up voice timings
+
+    // release
+
+    // cheetah voice detection engine
+    // continuation phrase
+    // blend multiplexer
 }

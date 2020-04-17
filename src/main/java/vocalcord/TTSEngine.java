@@ -6,12 +6,11 @@ import net.dv8tion.jda.api.audio.AudioSendHandler;
 
 import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
-import java.util.HashMap;
 
 /*
  * Text to speech engine
  */
-public class TTSEngine implements AudioSendHandler {
+class TTSEngine implements AudioSendHandler {
 
     public static final int AUDIO_FRAME = 3840; // 48000 / 50 (number of 20 ms in a second) * 2 (16-bit samples) * 2 (channels)
 
@@ -19,12 +18,19 @@ public class TTSEngine implements AudioSendHandler {
     private int index;
     private ByteBuffer lastFrame;
 
-    private HashMap<String, byte[]> cache = new HashMap<>();
+    private TTSCache ttsCache;
 
     public TTSEngine() {
         this.out = new byte[0];
 
         // Load the cache
+        if(VocalCord.getConfig().usingTTS && VocalCord.getConfig().usingTTSCache) {
+            try {
+                ttsCache = new TTSCache();
+            } catch(Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public byte[] tts(String text) throws Exception {
@@ -59,25 +65,23 @@ public class TTSEngine implements AudioSendHandler {
         }
     }
 
-    public void cache(String message) throws Exception {
-        if(!cache.containsKey(message.toLowerCase())) {
-            byte[] data = tts(message);
+    public void say(String phrase) throws Exception {
+        if(ttsCache != null) {
+            TTSCache.CacheResponse response = ttsCache.checkCache(phrase);
 
-            cache.put(message.toLowerCase(), data);
-            // save to disk
-//            BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream("C:\\Users\\wdavi\\Desktop\\cord_cache\\"+System.currentTimeMillis()+".tts"));
-//            bos.write(data);
-//            bos.flush();
-//            bos.close();
-        }
-    }
+            byte[] data = tts(phrase);
 
-    public void say(String text) throws Exception {
-        if(cache.containsKey(text.toLowerCase())) {
-            System.out.println("Answer already cached");
-            this.out = cache.get(text.toLowerCase());
+            if(response.pcmIfCached != null) {
+                this.out = response.pcmIfCached;
+            } else {
+                this.out = data;
+            }
+
+            if(response.shouldCache) {
+                ttsCache.cache(phrase, data);
+            }
         } else {
-            this.out = tts(text);
+            this.out = tts(phrase);
         }
 
         this.index = 0;

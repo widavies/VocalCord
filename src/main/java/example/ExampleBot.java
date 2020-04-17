@@ -19,7 +19,7 @@ public class ExampleBot extends ListenerAdapter implements VocalCord.Callbacks {
         // Windows
         cord = VocalCord.newConfig(this).withWakeDetection("C:\\Users\\wdavi\\IdeaProjects\\VocalCord\\native\\windows\\libjni_porcupine.dll",
                 "C:\\Users\\wdavi\\IdeaProjects\\VocalCord\\native\\windows\\libpv_porcupine.dll", "C:\\Users\\wdavi\\IdeaProjects\\VocalCord\\native\\porcupine_params.pv",
-                0.5f, "C:\\Users\\wdavi\\IdeaProjects\\VocalCord\\phrases\\hey_bot_windows.ppn").withTTS(SsmlVoiceGender.MALE).build();
+                0.5f, "C:\\Users\\wdavi\\IdeaProjects\\VocalCord\\phrases\\hey_bot_windows.ppn").withTTS(SsmlVoiceGender.MALE, true).build();
         
         // Linux (using WSL)
 //        cord = VocalCord.newConfig(this).withWakeDetection("/mnt/c/Users/wdavi/IdeaProjects/VocalCord/native/linux/libjni_porcupine.so",
@@ -46,11 +46,13 @@ public class ExampleBot extends ListenerAdapter implements VocalCord.Callbacks {
     }
 
     @Override
-    public boolean onWake(User user) {
-
-        cord.say("Yes?");
-
+    public boolean canWakeBot(User user) {
         return true;
+    }
+
+    @Override
+    public void onWake(User user, int keywordIndex) {
+        cord.say("Yes?");
     }
 //
 //    public static class Sender implements AudioSendHandler {
