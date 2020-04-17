@@ -5,7 +5,7 @@ apply plugin: 'maven'
 
 group = 'com.github.wdavies973'
 
-sourceCompatibility = 1.14
+sourceCompatibility = 1.8
 
 repositories {
     mavenCentral()
