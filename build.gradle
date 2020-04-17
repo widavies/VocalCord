@@ -1,11 +1,9 @@
-version '1.0.0'
+version '1.6'
 
 apply plugin: 'java'
 apply plugin: 'maven'
 
 group = 'com.github.wdavies973'
-
-sourceCompatibility = 1.8
 
 repositories {
     mavenCentral()

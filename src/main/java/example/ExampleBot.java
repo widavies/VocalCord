@@ -30,9 +30,7 @@ public class ExampleBot extends ListenerAdapter implements VocalCord.Callbacks {
     }
 
     public static void main(String[] args) throws Exception {
-        // Constants.token won't be defined for you because it's not tracked by git, this is where you'll put your
-        // bot's authentication token
-        JDA api = JDABuilder.createDefault(Constants.TOKEN).build();
+        JDA api = JDABuilder.createDefault("DISCORD-BOT-TOKEN").build();
         api.addEventListener(new ExampleBot());
 
         System.out.println("Hello world!");
