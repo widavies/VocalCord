@@ -21,10 +21,17 @@ so if you're eager to get started, do this right away.
 1) Go to the [Discord Developer Console](https://discordapp.com/developers/applications) and click "New application".
 2) On the left sidebar of the application view, selected "Bot"
 3) Click "Add Bot"
-4) Click "Copy" under the token header. This is your Discord bot token, put it in a safe place.
+4) Click "Copy" under the token header. This is your Discord bot token, put it in a safe place (keep it secret!).
 5) Select the "OAuth2" tab on the left sidebar
 6) Under "Scopes" make sure "bot" is checked.
 7) Enable any permissions your bot will utilize under the "Bot permissions" header. You will need to check ```Connect```, ```Speak```, and ```Use Voice Activity``` to use speech recognition and generation facilities.
 8) Discord will auto generate a link for you, copy this link and paste it into your browser. From here, you may select which server you'd like to add the bot to.
-### 
+### Google APIs
+1) Navigate to [Google Cloud Console](https://console.cloud.google.com/)
+2) In the lop left, select the projects drop down and create a new project.
+3) Once your project is created, click the "APIs & Services" card.
+4) From here, select the "Dashboard" tab on the left sidebar, click "Enable APIs and Services"
+5) Search for and enable ````Cloud Speech-to-Text API``` and ```Cloud Text-to-Speech API```
+6) On the left sidebar, select "Credentials", then under "Service Accounts", selected "Manage service accounts". Give your service account a name, and everything at its default. You will need to click the "Create Key" button, make sure JSON is selected, and hit "Create". This will download a JSON file. This is your credentials for using Google APIs, keep it secret!
+
 
