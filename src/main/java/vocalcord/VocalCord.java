@@ -220,6 +220,7 @@ public class VocalCord {
 
     // gradle deploy
     // documentation
+    // license
 
     // release
 

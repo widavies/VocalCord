@@ -1,7 +1,9 @@
 version '1.0.0'
 
 apply plugin: 'java'
-apply plugin: 'application'
+apply plugin: 'maven'
+
+group = 'com.github.wdavies973'
 
 sourceCompatibility = 1.14
 
@@ -32,7 +34,7 @@ buildscript {
 
 task execute(type: JavaExec) {
     main = "example.ExampleBot"
-    environment "LD_LIBRARY_PATH", "wake-engine/jni"
+    environment "LD_LIBRARY_PATH", "native/linux"
     // environment "LD_DEBUG", "libs"
 
     // systemProperty "java.library.path", "$project.rootDir/wake-engine/jni"

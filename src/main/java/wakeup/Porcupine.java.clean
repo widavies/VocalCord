@@ -1,0 +1,36 @@
+package wakeup;
+
+public class Porcupine {
+    private final long object;
+
+
+    public Porcupine() throws Exception {
+        try {
+            object = 0;
+        } catch (Exception e) {
+            throw new Exception(e);
+        }
+    }
+
+    public int processFrame(short[] pcm) throws Exception {
+        try {
+            return process(object, pcm);
+        } catch (Exception e) {
+            throw new Exception(e);
+        }
+    }
+
+    public void delete() {
+        delete(object);
+    }
+
+    public native int getFrameLength();
+
+    public native int getSampleRate();
+
+    private native long init(String dllLocation, String modelFilePath, float sensitivities, String[] wakePhrasePaths);
+
+    private native int process(long object, short[] pcm);
+
+    private native void delete(long object);
+}
