@@ -44,4 +44,11 @@ so if you're eager to get started, do this right away.
 1) Edit your ```.bashrc``` file by entering ```sudo nano ~/.bashrc```
 2) Add the line ```export GOOGLE_APPLICATION_CREDENTIALS="path-to-google-creds.JSON"``` to the end of the file and save. Example: ```export GOOGLE_APPLICATION_CREDENTIALS="/mnt/c/Users/wdavi/IdeaProjects/VocalCord/vocalcord-gcs.json"```
 3) Restart your terminal for this change to take effect.
+### Java Project
+The recommended IDE is [InteliJ IDEA](https://www.jetbrains.com/idea/download/).
 
+1) Click ```New > New Project```
+2) On the left side panel, select ```Gradle```, and check ```Java```.
+3) I used JDK 14, but you should be able to use whatever JDK you'd like.
+4) Give the project a name and hit ```Finish```
+5) 
