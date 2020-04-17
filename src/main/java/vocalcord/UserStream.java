@@ -60,7 +60,7 @@ public class UserStream {
     public UserStream(VocalCord.Builder config) throws Exception {
         this.config = config;
 
-        porcupine = new Porcupine("wake-engine/Porcupine/lib/common/porcupine_params.pv", "wake-engine/wake_phrase.ppn", 0.5f);
+        porcupine = new Porcupine("C:\\Users\\wdavi\\IdeaProjects\\VocalCord\\wake-engine\\Porcupine\\lib\\common\\porcupine_params.pv", "C:\\Users\\wdavi\\IdeaProjects\\VocalCord\\wake-engine\\wake_phrase_win32.ppn", 0.5f);
 
         if(porcupine.getFrameLength() != 512 || porcupine.getSampleRate() != 16000) {
             throw new RuntimeException("The underlying porcupine binaries do not have the expected configuration.");
@@ -171,7 +171,6 @@ public class UserStream {
             e.printStackTrace();
             return null;
         }
-
 
 //        try {
 //            AudioFormat target = ;

@@ -29,7 +29,6 @@ public class VocalCord {
          * @return true if the bot should start listening to what the user has to say, or false to deny the wakeup request
          */
         boolean onWake(User user);
-
     }
 
     public static class Builder {

@@ -4,12 +4,14 @@ public class Porcupine {
     private final long object;
 
     static {
-        System.loadLibrary("java_porcupine");
+        // For both platforms, this will be set explicitly
+        System.load("C:\\Users\\wdavi\\IdeaProjects\\VocalCord\\native\\windows\\jni_porcupine.dll");
     }
 
     public Porcupine(String modelFilePath, String keywordFilePath, float sens) throws Exception {
         try {
-            object = init(modelFilePath, keywordFilePath, sens);
+            // For linux, can just ignore first argument, just make sure both files are in the same directory
+            object = init("native\\windows\\libpv_porcupine.dll", modelFilePath, keywordFilePath, sens);
         } catch (Exception e) {
             throw new Exception(e);
         }
@@ -31,7 +33,7 @@ public class Porcupine {
 
     public native int getSampleRate();
 
-    private native long init(String modelFilePath, String keywordFilePaths, float sensitivities);
+    private native long init(String dllLocation, String modelFilePath, String keywordFilePaths, float sensitivities);
 
     private native boolean process(long object, short[] pcm);
 
