@@ -3,7 +3,7 @@ Giving Discord bots a voice with speech recognition and text to speech.
 
 # Donate
 If you find this project useful, a donation helps out a lot!
-[Donate](paypal.me/WillDaviesMN)
+[Donate](https://www.paypal.me/WillDaviesMN)
 
 # How does it work?
 - VocalCord is a _library_, not a standalone bot. VocalCord is built on the excellent [JDA](https://github.com/DV8FromTheWorld/JDA), providing a dead simple wrapper to receive voice transcripts and generate speech audio. VocalCord is a tool to build whatever you imagination decides.
@@ -11,6 +11,7 @@ If you find this project useful, a donation helps out a lot!
 - [Google Speech to Text](https://cloud.google.com/speech-to-text) is used for speech recognition, it's decently fast and provides accurate transcripts.
 - [Google Text to Speech](https://cloud.google.com/text-to-speech/) is used for text to speech generation, it works great and is fast.
 - VocalCord officially supports Windows and Linux
+- Thanks to [Olical](https://github.com/Olical/clojure-wake-word-detection) for some great examples that really helped in developing the bot.
 
 # Setup
 ### Porcupine wake phrases
@@ -93,11 +94,24 @@ VocalCord uses Porcupine for wake detection, however Porcupine does not support 
 5) Move ```libjni_porcupine.so``` and ```libpv_porcupine.so``` into ```native/linux```
 6) Move ```porcupine_params.pv``` into ```native```
 7) You ```native``` directory should look like [this](https://imgur.com/a/tQJPF4n).
+#### Porcupine
+Once Porcupine's wake phrase training is done, you should also move your ```wake_phrase.ppn``` file to ```native/```
 ### Setup Complete!
 You are now ready to configure your application and begin hacking.
-
-
-
+# Running a basic example
+You can find a basic example [here](https://github.com/wdavies973/VocalCord/blob/master/src/main/java/example/ExampleBot.java).
+# Configuration
+You can read up on most configuration options in the [VocalCord docs](https://github.com/wdavies973/VocalCord/blob/master/src/main/java/vocalcord/VocalCord.java)
+# Using a music bot?
+JDA enforces a restriction of only one ```AudioSendHandler``` at once. This introduces a problem if you want to use TTS and a music bot. To address this problem, VocalCord implements a audio send multliplexer, which essentially will mix the audio between your [music send handler](https://github.com/sedmelluq/lavaplayer#jda-integration) and VocalCord's internal TTS SendHandler. Currently, there are two send multiplex modes, ```Switch```, which will pause your music while TTS is occuring, and ```Blend``` which will lower the volume of your music bot while TTS is occuring. ```Blend``` is currently not implemented yet.
+# Roadmap
+Upcoming features:
+- ```Blend``` multiplexing mode
+- Option to use offline [Picovoice Cheetah](https://github.com/Picovoice/cheetah) voice recognition for faster voice recognition.
+- Continuation phrases so the bot can carry out an ongoing conversation
+- Improvements to command chain
+# Issues/Suggestions/Help
+If you need help or have any suggestions, feel free to contact me at wdavies973@gmail.com
 
 
 
