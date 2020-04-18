@@ -1,13 +1,10 @@
-version '1.6'
+version '1.0'
 
 apply plugin: 'java'
-apply plugin: 'maven'
-
-group = 'com.github.wdavies973'
+apply plugin: 'maven-publish'
 
 repositories {
     mavenCentral()
-    maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
     jcenter()
 }
 

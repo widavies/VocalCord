@@ -30,7 +30,7 @@ public class ExampleBot extends ListenerAdapter implements VocalCord.Callbacks {
     }
 
     public static void main(String[] args) throws Exception {
-        JDA api = JDABuilder.createDefault("DISCORD-BOT-TOKEN").build();
+        JDA api = JDABuilder.createDefault("BOT-TOKEN-HERE").build();
         api.addEventListener(new ExampleBot());
 
         System.out.println("Hello world!");
