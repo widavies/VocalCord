@@ -1,7 +1,12 @@
 version '1.0'
 
 apply plugin: 'java'
-apply plugin: 'maven-publish'
+apply plugin: 'maven'
+
+group = 'com.github.wdavies973'
+
+sourceCompatibility = 1.12
+targetCompatibility = 1.12
 
 repositories {
     mavenCentral()
