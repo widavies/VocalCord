@@ -37,7 +37,7 @@ so if you're eager to get started, do this right away.
 2) In the lop left, select the projects drop down and create a new project.
 3) Once your project is created, click the "APIs & Services" card.
 4) From here, select the "Dashboard" tab on the left sidebar, click "Enable APIs and Services"
-5) Search for and enable ````Cloud Speech-to-Text API``` and ```Cloud Text-to-Speech API```
+5) Search for and enable ```Cloud Speech-to-Text API``` and ```Cloud Text-to-Speech API```
 6) On the left sidebar, select "Credentials", then under "Service Accounts", selected "Manage service accounts". Give your service account a name, and everything at its default. You will need to click the "Create Key" button, make sure JSON is selected, and hit "Create". This will download a JSON file. This is your credentials for using Google APIs, keep it secret! Save it to a location where you will remember where it is.
 ### Environment
 #### Windows
