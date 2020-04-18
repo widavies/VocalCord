@@ -52,7 +52,7 @@ so if you're eager to get started, do this right away.
 ### Java Project
 The recommended IDE is [InteliJ IDEA](https://www.jetbrains.com/idea/download/).
 
-1) Download [Java SDK 12.0.2](https://jdk.java.net/archive/) and extract to ```C:\Program Files\Java```. Your installation folder should be something like ```C:\Program Files\Java\jdk-12.0.2```
+1) Download [Java SDK 12.0.2](https://jdk.java.net/archive/) and extract to ```C:\Program Files\Java```. Your installation folder should be something like ```C:\Program Files\Java\jdk-12.0.2```. If you're on Linux, run ```sudo apt-get install openjdk-12-jdk```
 1) Click ```New > New Project```
 2) On the left side panel, select ```Gradle```, and check ```Java```.
 3) Give the project a name and hit ```Finish```
