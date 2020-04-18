@@ -78,6 +78,8 @@ public class ExampleBot extends ListenerAdapter implements VocalCord.Callbacks {
     public CommandChain onTranscribed() {
         return new CommandChain.Builder().add("hello world", (user, transcript) -> {
             cord.say(user.getName()+" said something");
+        }).add("knock knock", (user, transcript) -> {
+            cord.say("Who's there?");
         }).withFallback(((user, transcript) -> {
             cord.say("I'm sorry, I didn't get that");
         })).build();
