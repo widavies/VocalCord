@@ -70,7 +70,7 @@ public class ExampleBot extends ListenerAdapter implements VocalCord.Callbacks {
      * 100% accurate. If you hard code a list of commands, being off by just one word wouldn't register the command,
      * or trying to use lots of String.contains(..) calls could easily intermix commands. This callback employs
      * CommandChain, which will generate document vectors and a document term matrix in order to compute the cosine
-     * similarity between a candidate transcription. Essentially, CommandChain will automatically run an algorithm to
+     * similarity between a candidate transcription and a voice command. Essentially, CommandChain will automatically run an algorithm to
      * determine which command was most likely said. This means that a user doesn't have to be 100% accurate on matching a command,
      * and instead only needs to capture the meaning of a command.
      */
