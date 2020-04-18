@@ -12,25 +12,49 @@ public class CommandChain {
     private ArrayList<Command> commands;
     private Task fallback;
 
+    /**
+     * User to construct a CommandChain
+     */
     public static class Builder {
-        private ArrayList<Command> commands = new ArrayList<>();
-        private CommandChain cc = new CommandChain();
+        private final ArrayList<Command> commands = new ArrayList<>();
+        private final CommandChain cc = new CommandChain();
 
+        /**
+         * Adds a voice command
+         * @param phrase The phrase that should trigger the command
+         * @param job The task that should be run when the phrase is detected
+         * @return Builder object
+         */
         public Builder add(String phrase, Task job) {
             commands.add(new Command(phrase, job));
             return this;
         }
 
+        /**
+         * If no voice command matches an incoming transcript with cosine similarity better than {@link CommandChain#minThreshold},
+         * this fallback task is run. It can be used for things like the bot saying "Sorry, I didn't get that"
+         * @param task The task to run when the user said something, but no voice command matched close enough
+         * @return Builder object
+         */
         public Builder withFallback(Task task) {
             cc.fallback = task;
             return this;
         }
 
+        /**
+         * Adjust the min cosine threshold for a voice command to be even considered to be a possible candidate
+         * @param minThreshold A value between 0 and 1, a value more towards 0 will let a voice transcript still trigger a voice command even if they are vastly different, a value of 1 will only allow essentially perfect matches
+         * @return Builder object
+         */
         public Builder withMinThreshold(float minThreshold) {
             cc.minThreshold = minThreshold;
             return this;
         }
 
+        /**
+         * Constructs the command chain object
+         * @return Returns the CommandChain object
+         */
         public CommandChain build() {
             if(commands.size() == 0) throw new RuntimeException("Must provide at least one command");
 
@@ -53,6 +77,11 @@ public class CommandChain {
     private CommandChain() {}
 
     public interface Task {
+        /**
+         * This task is run when a voice command is detected
+         * @param user The user that spoke the command
+         * @param transcript The transcript of what the user said
+         */
         void run(User user, String transcript);
     }
 
@@ -178,11 +207,10 @@ public class CommandChain {
         }
     }
 
-    public void execute(User user, CommandCandidate candidate) {
+    void execute(User user, CommandCandidate candidate) {
         if(candidate == null || candidate.similarity < minThreshold && fallback != null) {
             fallback.run(user, candidate == null ? "" : candidate.transcript);
         } else {
-            System.out.println("Command executed with certainty: "+candidate.similarity);
             candidate.cmd.job.run(user, candidate.transcript);
         }
     }

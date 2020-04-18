@@ -10,7 +10,7 @@ class TTSCache {
 
     private static final int FREQUENT_THRESHOLD = 15;
 
-    private HashMap<String, byte[]> cachedPhrases;
+    private final HashMap<String, byte[]> cachedPhrases;
 
     // Phrases that TTSCache is currently monitoring to decide if they are frequent enough to be cached
     private final HashMap<String, Integer> considerations = new HashMap<>();
@@ -42,7 +42,7 @@ class TTSCache {
         }
     }
 
-    public TTSCache() throws Exception {
+    TTSCache() throws Exception {
          cacheFile = new File(System.getProperty("user.home") + File.separator + ".vocalcord" + File.separator + "vocalcord_phrases.cache");
 
          if(!cacheFile.exists()) {
@@ -61,7 +61,7 @@ class TTSCache {
         streamDaemon.scheduleAtFixedRate(considerations::clear, 0, 1, TimeUnit.DAYS);
     }
 
-    public CacheResponse checkCache(String phrase) {
+    CacheResponse checkCache(String phrase) {
         String cleaned = scrubPhrase(phrase);
 
         byte[] pcm = cachedPhrases.getOrDefault(cleaned, null);
@@ -79,10 +79,8 @@ class TTSCache {
         return CacheResponse.phraseAlreadyCached(pcm);
     }
 
-    public void cache(String phrase, byte[] pcm) {
+    void cache(String phrase, byte[] pcm) {
         cachedPhrases.put(scrubPhrase(phrase), pcm);
-
-        System.out.println("Phrase \""+phrase+"\" is now considered frequent and will be cached.");
 
         cacheService.execute(this::save);
     }

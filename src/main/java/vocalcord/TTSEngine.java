@@ -20,7 +20,7 @@ class TTSEngine implements AudioSendHandler {
 
     private TTSCache ttsCache;
 
-    public TTSEngine() {
+    TTSEngine() {
         this.out = new byte[0];
 
         // Load the cache
@@ -33,7 +33,7 @@ class TTSEngine implements AudioSendHandler {
         }
     }
 
-    public byte[] tts(String text) throws Exception {
+    byte[] tts(String text) throws Exception {
         try(TextToSpeechClient client = TextToSpeechClient.create()) {
             SynthesisInput input = SynthesisInput.newBuilder().setSsml(text).build();
 
@@ -65,7 +65,7 @@ class TTSEngine implements AudioSendHandler {
         }
     }
 
-    public void say(String phrase) throws Exception {
+    void say(String phrase) throws Exception {
         if(ttsCache != null) {
             TTSCache.CacheResponse response = ttsCache.checkCache(phrase);
 

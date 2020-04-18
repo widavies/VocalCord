@@ -64,7 +64,7 @@ class STTEngine implements AudioReceiveHandler {
         }
     }
 
-    public STTEngine() {
+    STTEngine() {
         ScheduledExecutorService streamDaemon = Executors.newScheduledThreadPool(1);
         streamDaemon.scheduleAtFixedRate(new StreamMonitor(), 0, 1000, TimeUnit.MICROSECONDS); // 1 ms
     }
@@ -96,8 +96,6 @@ class STTEngine implements AudioReceiveHandler {
     }
 
     private List<SpeechRecognitionResult> speechRecognition(byte[] pcm) {
-        System.out.println("Accessing Google Cloud Speech API.");
-
         try(SpeechClient speech = SpeechClient.create()) {
             ByteString audioBytes = ByteString.copyFrom(pcm);
 
@@ -122,23 +120,23 @@ class STTEngine implements AudioReceiveHandler {
         return new ArrayList<>();
     }
 
-    private double volumeRMS(byte[] raw) { // needs more testing
-        double sum = 0d;
-        if(raw.length == 0) {
-            return sum;
-        } else {
-            for(byte aRaw : raw) {
-                sum += aRaw;
-            }
-        }
-        double average = sum / raw.length;
-
-        double sumMeanSquare = 0d;
-        for(byte aRaw : raw) {
-            sumMeanSquare += Math.pow(aRaw - average, 2d);
-        }
-        double averageMeanSquare = sumMeanSquare / raw.length;
-        return Math.sqrt(averageMeanSquare);
-    }
+//    private double volumeRMS(byte[] raw) { // needs more testing
+//        double sum = 0d;
+//        if(raw.length == 0) {
+//            return sum;
+//        } else {
+//            for(byte aRaw : raw) {
+//                sum += aRaw;
+//            }
+//        }
+//        double average = sum / raw.length;
+//
+//        double sumMeanSquare = 0d;
+//        for(byte aRaw : raw) {
+//            sumMeanSquare += Math.pow(aRaw - average, 2d);
+//        }
+//        double averageMeanSquare = sumMeanSquare / raw.length;
+//        return Math.sqrt(averageMeanSquare);
+//    }
 
 }

@@ -19,7 +19,7 @@ public class UserStream {
     private int index;
     private long lastAudioReceived = -1;
 
-    private VocalCord.Config config = VocalCord.getConfig();
+    private final VocalCord.Config config = VocalCord.getConfig();
 
     private final Porcupine porcupine;
 
@@ -28,7 +28,7 @@ public class UserStream {
      */
     private static class PorcupineAdapter {
         private static final int AUDIO_FRAME = 512;
-        private short[] pcm;
+        private final short[] pcm;
         private int index = 0;
 
         public PorcupineAdapter(byte[] raw) {
@@ -44,11 +44,6 @@ public class UserStream {
             return index < pcm.length;
         }
 
-        // Reclaim rest of audio data once wait word is detected
-        public void reclaim() {
-
-        }
-
         public short[] take() {
             short[] frame = new short[AUDIO_FRAME];
             System.arraycopy(pcm, index, frame, index, index + AUDIO_FRAME - index);
@@ -57,7 +52,7 @@ public class UserStream {
         }
     }
 
-    private User user;
+    private final User user;
 
     public UserStream(User user) throws Exception {
         this.user = user;
@@ -74,19 +69,20 @@ public class UserStream {
         if(!awake) {
             try {
                 PorcupineAdapter pa = new PorcupineAdapter(audio);
-                int keywordIndex = porcupine.processFrame(pa.take());
+                while(pa.hasNext()) {
+                    int keywordIndex = porcupine.processFrame(pa.take());
 
-                if(keywordIndex != -1) {
-                    System.out.println("WAKE WORD DETECTED");
+                    if(keywordIndex != -1) {
+                        workPool.execute(() -> VocalCord.getConfig().callbacks.onWake(this, keywordIndex));
 
-                    workPool.execute(() -> VocalCord.getConfig().callbacks.onWake(this, keywordIndex));
-
-                    awake = true;
-                    phrase = new byte[3840 * 50 * 5]; // by default, holds 5 seconds of data
-                    phraseBegun = false;
-                    lastReceivedPacket = System.nanoTime();
-                    index = 0;
+                        awake = true;
+                        phrase = new byte[3840 * 50 * 5]; // by default, holds 5 seconds of data
+                        phraseBegun = false;
+                        lastReceivedPacket = System.nanoTime();
+                        index = 0;
+                    }
                 }
+
             } catch(Exception e) {
                 e.printStackTrace();
             }
@@ -109,8 +105,6 @@ public class UserStream {
         }
     }
 
-    // TODO user stream destruction
-
     boolean readyForTranscription() {
         if(!awake) return false;
 
@@ -121,14 +115,12 @@ public class UserStream {
 
         long elapsedMs = (System.nanoTime() - lastReceivedPacket) / 1_000_000;
 
-        if(phraseBegun && elapsedMs >= config.endThreshold) {
-            System.out.println("Phrase completed");
+        if(phraseBegun && elapsedMs >= config.postPhraseTimeout) {
             return true;
-        } else if(!phraseBegun && elapsedMs >= config.beginTimeLimit) {
-            System.out.println("Phrase never started");
+        } else if(!phraseBegun && elapsedMs >= config.postWakeLimit) {
             sleep();
             return false; // user never started talking after waking bot
-        } else if(phrase.length > 3840 * 50 * config.maximumPhraseLength) {
+        } else if(phrase.length > 3840 * 50 * config.maxPhraseTime) {
             return true;
         }
 
@@ -145,36 +137,7 @@ public class UserStream {
         awake = false;
     }
 
-    // export GOOGLE_APPLICATION_CREDENTIALS=/mnt/c/Users/wdavi/IdeaProjects/VocalCord/vocalcord-gcs.json
     byte[] getAudioForGoogle() {
-//        // Trim
-//        byte[] trimmed = new byte[index];
-//        System.arraycopy(phrase, 0, trimmed, 0, index);
-//
-//        // Stereo to mono
-//        byte[] mono = new byte[trimmed.length / 2];
-//        for(int i = 0, j = 0; i < trimmed.length; i += 4, j+=2) {
-//            short a = (short) ((trimmed[i] << 8) | (trimmed[i + 1] & 0xFF));
-//            short b = (short) ((trimmed[i + 2] << 8) | (trimmed[i + 3] & 0xFF));
-//
-//            short m = Short.reverseBytes((short) ((a + b) / 2));
-//
-//            byte high = (byte) (m >> 8);
-//            byte low = (byte) (m & 0x00FF);
-//
-//            mono[j] = high;
-//            mono[j+1] = low;
-//        }
-//
-//        byte[] downsized = new byte[mono.length / 2];
-//
-//        // Convert to little endian
-//        for(int i = 0, j = 0; i < mono.length; i += 4, j+=2 ) {
-//            downsized[j] = mono[i];
-//            downsized[j + 1] = mono[i+1];
-//        }
-//
-//        return downsized;
 
         try {
             AudioFormat target = new AudioFormat(16000f, 16, 1, true, false);
@@ -185,40 +148,6 @@ public class UserStream {
             e.printStackTrace();
             return null;
         }
-
-//        try {
-//            AudioFormat target = ;
-//            AudioInputStream is = AudioSystem.getAudioInputStream(target, new AudioInputStream(new ByteArrayInputStream(phrase), AudioReceiveHandler.OUTPUT_FORMAT, phrase.length));
-//            AudioSystem.write(is, AudioFileFormat.Type.WAVE, new File("/mnt/c/Users/wdavi/IdeaProjects/VocalCord/audio.wav"));
-//            return IOUtils.toByteArray(new FileInputStream(new File("/mnt/c/Users/wdavi/IdeaProjects/VocalCord/audio.wav")));
-//        } catch(Exception e) {
-//            e.printStackTrace();
-//            System.out.println("Failed to convert!");
-//        }
-
-//        ByteBuffer bb = ByteBuffer.wrap(phrase);
-//        bb.order(ByteOrder.LITTLE_ENDIAN);
-//
-//        byte[] pcm = bb.array();
-//        byte[] downSample = new byte[pcm.length / 6];
-//        for(int i = 0, j = 0; i < pcm.length; i += 6, j++) {
-//            downSample[j] = pcm[i];
-//        }
-
-//        byte[] downsized = new byte[phrase.length / 6];
-//
-//        // Convert audio to little endian & down-sample to 16000Khz
-//        for(int i = 0, j = 0; i < phrase.length / 6; i += 6, j += 2) {
-//            short reversed = Short.reverseBytes((short) ((phrase[i] << 8) | (phrase[i + 1] & 0xFF)));
-//            byte low = (byte) (reversed >> 8);
-//            byte high = (byte) (reversed & 0x00FF);
-//
-//            downsized[j] = high;
-//            downsized[j + 1] = low;
-//        }
-
-        // return downSample;
-
     }
 
     void destroy() {
