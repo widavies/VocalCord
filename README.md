@@ -1,6 +1,10 @@
 # VocalCord
 Giving Discord bots a voice with speech recognition and text to speech.
 
+# Donate
+If you find this project useful, a donation helps out a lot!
+[Donate](paypal.me/WillDaviesMN)
+
 # How does it work?
 - VocalCord is a _library_, not a standalone bot. VocalCord is built on the excellent [JDA](https://github.com/DV8FromTheWorld/JDA), providing a dead simple wrapper to receive voice transcripts and generate speech audio. VocalCord is a tool to build whatever you imagination decides.
 - [Porcupine](https://github.com/Picovoice/porcupine) is used for wake detection, it's incredibly accurate and works consistently well.
@@ -9,7 +13,7 @@ Giving Discord bots a voice with speech recognition and text to speech.
 - VocalCord officially supports Windows and Linux
 
 # Setup
-### Porcupine Wake phrases
+### Porcupine wake phrases
 Porcupine requires you to build a wake phrase AI model for every wake phrase you'd like to use. This process can take about 3 hours,
 so if you're eager to get started, do this right away.
 
@@ -47,8 +51,53 @@ so if you're eager to get started, do this right away.
 ### Java Project
 The recommended IDE is [InteliJ IDEA](https://www.jetbrains.com/idea/download/).
 
+1) Download [Java SDK 12.0.2](https://jdk.java.net/archive/) and extract to ```C:\Program Files\Java```. Your installation folder should be something like ```C:\Program Files\Java\jdk-12.0.2```
 1) Click ```New > New Project```
 2) On the left side panel, select ```Gradle```, and check ```Java```.
-3) I used JDK 14, but you should be able to use whatever JDK you'd like.
-4) Give the project a name and hit ```Finish```
-5) 
+3) Give the project a name and hit ```Finish```
+4) Ensure you are using JDK 12
+  - ```File > Settings > Build, Execution, Deployment > Gradle > Gradle JVM``` should be set to your JDK 12
+  - ```Right click project > Open Module Settings > Project > Project SDK``` should be set to your JDK 12
+  - ```Right click project > Open Module Settings > Project > Project language level``` should be ```12 - No new language features```
+  - ```Right click project > Open Module Settings > Modules > Module SDK``` should be set to your JDK 12
+5) Edit your ```build.gradle``` file to install ```VocalCord```:
+  ```
+  repositories {
+      mavenCentral()
+      maven { url 'https://jitpack.io' }
+      jcenter()
+  }
+
+  dependencies {
+      implementation 'net.dv8tion:JDA:4.1.1_136'
+      implementation 'com.google.cloud:google-cloud-speech:1.22.6'
+      implementation 'com.google.cloud:google-cloud-texttospeech:1.0.2'
+      implementation 'com.github.wdavies973:VocalCord:1.10'
+  }
+  ```
+### Dynamic Libraries
+VocalCord uses Porcupine for wake detection, however Porcupine does not support Java. Instead, VocalCord uses the Java Native Interface (JNI) to wrap the Porcupine C library in Java bindings. You will need to obtain the Porcupine dynamic library, as well as the VocalCord wrapper dynamic library. VocalCord will load the wrapper library, which will in turn load the Porcupine dynamic library.
+#### Linux
+1) Create a folder with your root project directory called "native", within this create a subdirectory labeled "linux"
+2) [Download libjni_porcupine.so](https://github.com/wdavies973/VocalCord/raw/master/native/linux/libjni_porcupine.so)
+3) [Download libpv_porcupine.so](https://github.com/Picovoice/porcupine/raw/master/lib/linux/x86_64/libpv_porcupine.so)
+4) [Download porcupine_params.pv](https://github.com/Picovoice/porcupine/raw/master/lib/common/porcupine_params.pv)
+5) Move ```libjni_porcupine.so``` and ```libpv_porcupine.so``` into ```native/linux```
+6) Move ```porcupine_params.pv``` into ```native```
+7) You ```native``` directory should look like [this](https://imgur.com/a/tQJPF4n).
+#### Windows
+1) Create a folder with your root project directory called "native", within this create a subdirectory labeled "linux"
+2) [Download libjni_porcupine.so](https://github.com/wdavies973/VocalCord/raw/master/native/windows/libjni_porcupine.dll)
+3) [Download libpv_porcupine.so](https://github.com/Picovoice/porcupine/raw/master/lib/windows/x86_64/libpv_porcupine.dll)
+4) [Download porcupine_params.pv](https://github.com/Picovoice/porcupine/raw/master/lib/common/porcupine_params.pv)
+5) Move ```libjni_porcupine.so``` and ```libpv_porcupine.so``` into ```native/linux```
+6) Move ```porcupine_params.pv``` into ```native```
+7) You ```native``` directory should look like [this](https://imgur.com/a/tQJPF4n).
+### Setup Complete!
+You are now ready to configure your application and begin hacking.
+
+
+
+
+
+
