@@ -76,13 +76,13 @@ public class ExampleBot extends ListenerAdapter implements VocalCord.Callbacks {
      */
     @Override
     public CommandChain onTranscribed() {
-        return new CommandChain.Builder().add("fact of the day", (user, transcript) -> {
-            cord.say(" niggers aren't people and you know its true, it takes 5 of them to make 3 of you. once you go black, everything is bigger. fuck my ass and call me a nigger");
-        }).add("repeat after me", (user, transcript) -> {
-            cord.say(transcript.replaceAll("repeat after me", ""));
+        return new CommandChain.Builder().add("hello world", (user, transcript) -> {
+            cord.say(user.getName()+" said something");
+        }).add("knock knock", (user, transcript) -> {
+            cord.say("Who's there?");
         }).withFallback(((user, transcript) -> {
             cord.say("I'm sorry, I didn't get that");
-        })).withMinThreshold(0.05f).build();
+        })).withMinThreshold(0.5f).build();
     }
 
     @Override
