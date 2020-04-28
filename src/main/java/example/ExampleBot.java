@@ -25,17 +25,17 @@ public class ExampleBot extends ListenerAdapter implements VocalCord.Callbacks {
         // Windows
         cord = VocalCord.newConfig(this).withWakeDetection("C:\\Users\\wdavi\\IdeaProjects\\VocalCord\\native\\windows\\libjni_porcupine.dll",
                 "C:\\Users\\wdavi\\IdeaProjects\\VocalCord\\native\\windows\\libpv_porcupine.dll", "C:\\Users\\wdavi\\IdeaProjects\\VocalCord\\native\\porcupine_params.pv",
-                0.5f, "C:\\Users\\wdavi\\IdeaProjects\\VocalCord\\phrases\\hey_bot_windows.ppn").withTTS(SsmlVoiceGender.MALE, true).build();
+                0.5f, "C:\\Users\\wdavi\\IdeaProjects\\VocalCord\\phrases\\windows.ppn").withTTS(SsmlVoiceGender.MALE, true).build();
 
         // Linux (using WSL)
 //        cord = VocalCord.newConfig(this).withWakeDetection("/mnt/c/Users/wdavi/IdeaProjects/VocalCord/native/linux/libjni_porcupine.so",
 //                "/mnt/c/Users/wdavi/IdeaProjects/VocalCord/native/linux/libpv_porcupine.so", "/mnt/c/Users/wdavi/IdeaProjects/VocalCord/native/porcupine_params.pv",
-//                0.5f, "/mnt/c/Users/wdavi/IdeaProjects/VocalCord/phrases/hey_bot_linux.ppn").withTTS(SsmlVoiceGender.MALE).build();
+//                0.5f, "/mnt/c/Users/wdavi/IdeaProjects/VocalCord/phrases/linux.ppn").withTTS(SsmlVoiceGender.MALE, true).build();
     }
 
     public static void main(String[] args) throws Exception {
         // Creates a JDA Discord instance and makes your bot go online
-        JDA api = JDABuilder.createDefault(/* YOUR DISCORD BOT TOKEN HERE */args[0]).build();
+        JDA api = JDABuilder.createDefault(args[0]).build();
         api.addEventListener(new ExampleBot());
     }
 
@@ -117,6 +117,6 @@ public class ExampleBot extends ListenerAdapter implements VocalCord.Callbacks {
 
     @Override
     public void onTTSCompleted() {
-        // If you want to do anything after the bot starts speaking
+        // If you want to do anything after the bot stops speaking
     }
 }

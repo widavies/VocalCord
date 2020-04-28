@@ -111,15 +111,20 @@ JNIEXPORT jlong JNICALL Java_wakeup_Porcupine_init
 
     float * sensArr = malloc(sizeof(float) * numWakePhrases);
 
-    for(int i = 0; i < (int)numWakePhrases; i++) {
-        sensArr[i] = (float)sens;
+    jstring ** raw_paths = malloc(sizeof(jstring*) * numWakePhrases);
+
+    printf("Loading Porcupine with model path %s, sensitivity %f, and %d wake phrases\n", model, sens, numWakePhrases);
+
+    for(int i = 0; i < numWakePhrases; i++) {
+        sensArr[i] = sens;
 
         jstring path_raw = (jstring) (*env)->GetObjectArrayElement(env, wakePhrasesRaw, i);
         const char * path = (*env)->GetStringUTFChars(env, path_raw, 0);
 
+        raw_paths[i] = &path_raw;
         wakeup_phrase_paths[i] = path;
 
-        (*env)->ReleaseStringUTFChars(env, path_raw, path);
+        printf("Wake phrase added: %s\n", path);
     }
 
     #ifdef _WIN32
@@ -132,6 +137,11 @@ JNIEXPORT jlong JNICALL Java_wakeup_Porcupine_init
        printf("Error: Failed to initialise the Porcupine instance, code: %d\n", status);
     }
 
+    for(int i = 0; i < numWakePhrases; i++) {
+        (*env)->ReleaseStringUTFChars(env, *(raw_paths[i]), wakeup_phrase_paths[i]);
+    }
+
+    free(raw_paths);
     free(sensArr);
     free(wakeup_phrase_paths);
 

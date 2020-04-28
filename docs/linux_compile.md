@@ -9,4 +9,4 @@ this compilation process. If someone wants to make a script that does this all a
 2) Ensure back in top directory: ```VocalCord/```
 3) Create the JNI header file: ```javac -h native/jni src/main/java/wakeup/Porcupine.java```
 4) Compile: ```gcc -shared -O3 -I/usr/include -I/usr/lib/jvm/{YOUR-JVM-EDITION}/include -I/usr/lib/jvm/{YOUR_JVM-EDITION}/include/linux -Iwake-engine/Porcupine/include -Inative/jni src/main/c/porcupine.c -o native/linux/libjni_porcupine.so -fPIC```
-    - Example: ```gcc -shared -O3 -I/usr/include -I/usr/lib/jvm/java-14-oracle/include -I/usr/lib/jvm/java-14-oracle/include/linux -Iwake-engine/Porcupine/include -Iwake-engine/jni src/main/c/porcupine.c -o native/linux/libjni_porcupine.so -fPIC```
+    - Example: ```gcc -shared -O3 -I/usr/include -I/usr/lib/jvm/java-14-oracle/include -I/usr/lib/jvm/java-14-oracle/include/linux -Iwake-engine/Porcupine/include -Inative/jni src/main/c/porcupine.c -o native/linux/libjni_porcupine.so -fPIC```
