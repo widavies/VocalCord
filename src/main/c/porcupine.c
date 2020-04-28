@@ -123,13 +123,13 @@ JNIEXPORT jlong JNICALL Java_wakeup_Porcupine_init
     }
 
     #ifdef _WIN32
-       const pv_status_t status = f_init(model, 1, wakeup_phrase_paths, sensArr, &handle);
+       const pv_status_t status = f_init(model, numWakePhrases, wakeup_phrase_paths, sensArr, &handle);
     #else
-       const pv_status_t status = (*f_init)(model, 1, wakeup_phrase_paths, sensArr, &handle);
+       const pv_status_t status = (*f_init)(model, numWakePhrases, wakeup_phrase_paths, sensArr, &handle);
     #endif
 
     if (status != PV_STATUS_SUCCESS) {
-       printf("Error: Failed to initialise the Porcupine instance.");
+       printf("Error: Failed to initialise the Porcupine instance, code: %d\n", status);
     }
 
     free(sensArr);

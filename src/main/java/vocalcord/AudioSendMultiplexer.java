@@ -38,4 +38,9 @@ public class AudioSendMultiplexer implements AudioSendHandler {
     public ByteBuffer provide20MsAudio() {
         return currentProvider.provide20MsAudio();
     }
+
+    @Override
+    public boolean isOpus() {
+        return currentProvider.isOpus();
+    }
 }

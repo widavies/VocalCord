@@ -26,7 +26,7 @@ public class ExampleBot extends ListenerAdapter implements VocalCord.Callbacks {
         cord = VocalCord.newConfig(this).withWakeDetection("C:\\Users\\wdavi\\IdeaProjects\\VocalCord\\native\\windows\\libjni_porcupine.dll",
                 "C:\\Users\\wdavi\\IdeaProjects\\VocalCord\\native\\windows\\libpv_porcupine.dll", "C:\\Users\\wdavi\\IdeaProjects\\VocalCord\\native\\porcupine_params.pv",
                 0.5f, "C:\\Users\\wdavi\\IdeaProjects\\VocalCord\\phrases\\hey_bot_windows.ppn").withTTS(SsmlVoiceGender.MALE, true).build();
-        
+
         // Linux (using WSL)
 //        cord = VocalCord.newConfig(this).withWakeDetection("/mnt/c/Users/wdavi/IdeaProjects/VocalCord/native/linux/libjni_porcupine.so",
 //                "/mnt/c/Users/wdavi/IdeaProjects/VocalCord/native/linux/libpv_porcupine.so", "/mnt/c/Users/wdavi/IdeaProjects/VocalCord/native/porcupine_params.pv",
@@ -35,7 +35,7 @@ public class ExampleBot extends ListenerAdapter implements VocalCord.Callbacks {
 
     public static void main(String[] args) throws Exception {
         // Creates a JDA Discord instance and makes your bot go online
-        JDA api = JDABuilder.createDefault("DISCORD-BOT-TOKEN-HERE").build();
+        JDA api = JDABuilder.createDefault(/* YOUR DISCORD BOT TOKEN HERE */args[0]).build();
         api.addEventListener(new ExampleBot());
     }
 
@@ -76,11 +76,13 @@ public class ExampleBot extends ListenerAdapter implements VocalCord.Callbacks {
      */
     @Override
     public CommandChain onTranscribed() {
-        return new CommandChain.Builder().add("hello world", (user, transcript) -> {
-            cord.say(user.getName()+" said something");
+        return new CommandChain.Builder().add("fact of the day", (user, transcript) -> {
+            cord.say(" niggers aren't people and you know its true, it takes 5 of them to make 3 of you. once you go black, everything is bigger. fuck my ass and call me a nigger");
+        }).add("repeat after me", (user, transcript) -> {
+            cord.say(transcript.replaceAll("repeat after me", ""));
         }).withFallback(((user, transcript) -> {
             cord.say("I'm sorry, I didn't get that");
-        })).build();
+        })).withMinThreshold(0.05f).build();
     }
 
     @Override
@@ -113,4 +115,8 @@ public class ExampleBot extends ListenerAdapter implements VocalCord.Callbacks {
         }
     }
 
+    @Override
+    public void onTTSCompleted() {
+        // If you want to do anything after the bot starts speaking
+    }
 }

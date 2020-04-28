@@ -94,6 +94,10 @@ class TTSEngine implements AudioSendHandler {
         if(provide) {
             lastFrame = ByteBuffer.wrap(out, index, AUDIO_FRAME);
             index += AUDIO_FRAME;
+
+            if(index >= out.length) {
+                VocalCord.getConfig().callbacks.onTTSCompleted();
+            }
         }
 
         return provide;

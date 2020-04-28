@@ -55,6 +55,11 @@ public class VocalCord {
          * @param keywordIndex The index of the wake phrase that was used to wake the bot, this matches the order you provided wake phrase paths
          */
         void onWake(UserStream userStream, int keywordIndex);
+
+        /**
+         * Triggered when the bot has finished speaking the last phrase it was told to speak
+         */
+        default void onTTSCompleted() {}
     }
 
     private static Config CONFIG;
@@ -275,5 +280,9 @@ public class VocalCord {
     // TODO
     // cheetah voice detection engine
     // continuation phrase
+    // partial commands with number arguments and such
     // blend multiplexer
+    // starts with phrases
+    // include documentation about disconnecting the bot
+    // fix timings a bit
 }
