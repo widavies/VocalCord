@@ -3,7 +3,7 @@ Giving Discord bots a voice with speech recognition and text to speech.
 
 # Donate
 If you find this project useful, a donation helps out a lot!
-[Donate](paypal.me/WillDaviesMN)
+[Donate](https://www.paypal.me/WillDaviesMN)
 
 # How does it work?
 - VocalCord is a _library_, not a standalone bot. VocalCord is built on the excellent [JDA](https://github.com/DV8FromTheWorld/JDA), providing a dead simple wrapper to receive voice transcripts and generate speech audio. VocalCord is a tool to build whatever you imagination decides.
@@ -11,6 +11,7 @@ If you find this project useful, a donation helps out a lot!
 - [Google Speech to Text](https://cloud.google.com/speech-to-text) is used for speech recognition, it's decently fast and provides accurate transcripts.
 - [Google Text to Speech](https://cloud.google.com/text-to-speech/) is used for text to speech generation, it works great and is fast.
 - VocalCord officially supports Windows and Linux
+- Thanks to [Olical](https://github.com/Olical/clojure-wake-word-detection) for some great examples that really helped in developing the bot.
 
 # Setup
 ### Porcupine wake phrases
@@ -36,7 +37,7 @@ so if you're eager to get started, do this right away.
 2) In the lop left, select the projects drop down and create a new project.
 3) Once your project is created, click the "APIs & Services" card.
 4) From here, select the "Dashboard" tab on the left sidebar, click "Enable APIs and Services"
-5) Search for and enable ````Cloud Speech-to-Text API``` and ```Cloud Text-to-Speech API```
+5) Search for and enable ```Cloud Speech-to-Text API``` and ```Cloud Text-to-Speech API```
 6) On the left sidebar, select "Credentials", then under "Service Accounts", selected "Manage service accounts". Give your service account a name, and everything at its default. You will need to click the "Create Key" button, make sure JSON is selected, and hit "Create". This will download a JSON file. This is your credentials for using Google APIs, keep it secret! Save it to a location where you will remember where it is.
 ### Environment
 #### Windows
@@ -51,7 +52,7 @@ so if you're eager to get started, do this right away.
 ### Java Project
 The recommended IDE is [InteliJ IDEA](https://www.jetbrains.com/idea/download/).
 
-1) Download [Java SDK 12.0.2](https://jdk.java.net/archive/) and extract to ```C:\Program Files\Java```. Your installation folder should be something like ```C:\Program Files\Java\jdk-12.0.2```
+1) Download [Java SDK 12.0.2](https://jdk.java.net/archive/) and extract to ```C:\Program Files\Java```. Your installation folder should be something like ```C:\Program Files\Java\jdk-12.0.2```. If you're on Linux, run ```sudo apt-get install openjdk-12-jdk```
 1) Click ```New > New Project```
 2) On the left side panel, select ```Gradle```, and check ```Java```.
 3) Give the project a name and hit ```Finish```
@@ -72,7 +73,7 @@ The recommended IDE is [InteliJ IDEA](https://www.jetbrains.com/idea/download/).
       implementation 'net.dv8tion:JDA:4.1.1_136'
       implementation 'com.google.cloud:google-cloud-speech:1.22.6'
       implementation 'com.google.cloud:google-cloud-texttospeech:1.0.2'
-      implementation 'com.github.wdavies973:VocalCord:1.10'
+      implementation 'com.github.wdavies973:VocalCord:2.0'
   }
   ```
 ### Dynamic Libraries
@@ -93,11 +94,24 @@ VocalCord uses Porcupine for wake detection, however Porcupine does not support 
 5) Move ```libjni_porcupine.so``` and ```libpv_porcupine.so``` into ```native/linux```
 6) Move ```porcupine_params.pv``` into ```native```
 7) You ```native``` directory should look like [this](https://imgur.com/a/tQJPF4n).
+#### Porcupine
+Once Porcupine's wake phrase training is done, you should also move your ```wake_phrase.ppn``` file to ```native/```
 ### Setup Complete!
 You are now ready to configure your application and begin hacking.
-
-
-
+# Running a basic example
+You can find a basic example [here](https://github.com/wdavies973/VocalCord/blob/master/src/main/java/example/ExampleBot.java).
+# Configuration
+You can read up on most configuration options in the [VocalCord docs](https://github.com/wdavies973/VocalCord/blob/master/src/main/java/vocalcord/VocalCord.java)
+# Using a music bot?
+JDA enforces a restriction of only one ```AudioSendHandler``` at once. This introduces a problem if you want to use TTS and a music bot. To address this problem, VocalCord implements a audio send multliplexer, which essentially will mix the audio between your [music send handler](https://github.com/sedmelluq/lavaplayer#jda-integration) and VocalCord's internal TTS SendHandler. Currently, there are two send multiplex modes, ```Switch```, which will pause your music while TTS is occuring, and ```Blend``` which will lower the volume of your music bot while TTS is occuring. ```Blend``` is currently not implemented yet.
+# Roadmap
+Upcoming features:
+- ```Blend``` multiplexing mode
+- Option to use offline [Picovoice Cheetah](https://github.com/Picovoice/cheetah) voice recognition for faster voice recognition.
+- Continuation phrases so the bot can carry out an ongoing conversation
+- Improvements to command chain
+# Issues/Suggestions/Help
+If you need help or have any suggestions, feel free to contact me at wdavies973@gmail.com
 
 
 

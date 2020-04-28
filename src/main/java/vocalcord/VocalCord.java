@@ -42,7 +42,7 @@ public class VocalCord {
          * every user VocalCord is using wake detection on is a drain on resources, returning true will
          * allow VocalCord to track the user's audio stream, but returning false will not track a user's audio
          * stream. Basically, only allow users to wake the bot that you trust, because Google Speech To Text can
-         * cause money over a certain threshold, and universally returning "true" could make it easier for your
+         * cost money over a certain threshold, and universally returning "true" could make it easier for your
          * bot to get overloaded.
          * @param user The user object of a user who is talking in a voice channel
          * @return true if the user can use voice commands, false if they can't
