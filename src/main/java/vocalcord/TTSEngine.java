@@ -37,7 +37,7 @@ class TTSEngine implements AudioSendHandler {
         try(TextToSpeechClient client = TextToSpeechClient.create()) {
             SynthesisInput input = SynthesisInput.newBuilder().setSsml(text).build();
 
-            VoiceSelectionParams voice = VoiceSelectionParams.newBuilder().setLanguageCode("en-US").setSsmlGender(VocalCord.getConfig().voiceGender).build();
+            VoiceSelectionParams voice = VoiceSelectionParams.newBuilder().setLanguageCode(VocalCord.getConfig().languageCode).setSsmlGender(VocalCord.getConfig().voiceGender).build();
 
             AudioConfig audioConfig = AudioConfig.newBuilder().setAudioEncoding(AudioEncoding.LINEAR16).setSampleRateHertz(48_000).build();
 
