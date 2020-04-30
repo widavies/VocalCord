@@ -25,7 +25,7 @@ public class ExampleBot extends ListenerAdapter implements VocalCord.Callbacks {
         // Windows
         cord = VocalCord.newConfig(this).withWakeDetection("C:\\Users\\wdavi\\IdeaProjects\\VocalCord\\native\\windows\\libjni_porcupine.dll",
                 "C:\\Users\\wdavi\\IdeaProjects\\VocalCord\\native\\windows\\libpv_porcupine.dll", "C:\\Users\\wdavi\\IdeaProjects\\VocalCord\\native\\porcupine_params.pv",
-                0.5f, "C:\\Users\\wdavi\\IdeaProjects\\VocalCord\\phrases\\windows.ppn").withTTS(SsmlVoiceGender.MALE, true).build();
+                0.5f, "C:\\Users\\wdavi\\IdeaProjects\\VocalCord\\phrases\\hey_cord.ppn").withTTS(SsmlVoiceGender.MALE, true).build();
 
         // Linux (using WSL)
 //        cord = VocalCord.newConfig(this).withWakeDetection("/mnt/c/Users/wdavi/IdeaProjects/VocalCord/native/linux/libjni_porcupine.so",
@@ -35,7 +35,7 @@ public class ExampleBot extends ListenerAdapter implements VocalCord.Callbacks {
 
     public static void main(String[] args) throws Exception {
         // Creates a JDA Discord instance and makes your bot go online
-        JDA api = JDABuilder.createDefault(args[0]).build();
+        JDA api = JDABuilder.createDefault(/* YOUR BOT TOKEN HERE */args[0]).build();
         api.addEventListener(new ExampleBot());
     }
 
@@ -76,11 +76,11 @@ public class ExampleBot extends ListenerAdapter implements VocalCord.Callbacks {
      */
     @Override
     public CommandChain onTranscribed() {
-        return new CommandChain.Builder().add("hello world", (user, transcript) -> {
+        return new CommandChain.Builder().addPhrase("hello world", (user, transcript, args) -> {
             cord.say(user.getName()+" said something");
-        }).add("knock knock", (user, transcript) -> {
+        }).addPhrase("knock knock", (user, transcript, args) -> {
             cord.say("Who's there?");
-        }).withFallback(((user, transcript) -> {
+        }).withFallback(((user, transcript, args) -> {
             cord.say("I'm sorry, I didn't get that");
         })).withMinThreshold(0.5f).build();
     }
@@ -93,16 +93,16 @@ public class ExampleBot extends ListenerAdapter implements VocalCord.Callbacks {
         Message message = event.getMessage();
         String content = message.getContentRaw();
 
+        if(content.startsWith("!say")) {
+            cord.say(content.substring(5));
+        }
+
         /*
          * This is a basic summon command that will summon the bot to
          * whatever voice channel the author is in, this is a really basic
          * summon command, but you can develop more advanced scenarios where
          * the bot follows you around or whatever.
          */
-        if(content.startsWith("!say")) {
-            cord.say(content.substring(5));
-        }
-
         if(content.equals("!summon")) {
             event.getMessage().getChannel().sendMessage("On my way!").queue();
             try {

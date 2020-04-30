@@ -35,20 +35,20 @@ class STTEngine implements AudioReceiveHandler {
 
                         CommandChain chain = callbacks.onTranscribed();
                         if(chain != null) {
-                            CommandChain.CommandCandidate max = null;
+                            CommandChain.TaskCandidate max = null;
                             double maxSimilarity = -1;
 
                             for(SpeechRecognitionResult result : results) {
                                 for(SpeechRecognitionAlternative sra : result.getAlternativesList()) {
-                                    CommandChain.CommandCandidate ccs = chain.test(sra.getTranscript());
-                                    if(ccs != null && ccs.similarity > maxSimilarity) {
-                                        maxSimilarity = ccs.similarity;
+                                    CommandChain.TaskCandidate ccs = chain.score(sra.getTranscript());
+                                    if(ccs != null && ccs.score > maxSimilarity) {
+                                        maxSimilarity = ccs.score;
                                         max = ccs;
                                     }
                                 }
                             }
 
-                            chain.execute(us.getUser(), max);
+                            chain.fulfillTaskCandidate(us.getUser(), max);
                         } else {
                             if(results.size() > 0 && results.get(0).getAlternativesList().size() > 0) {
                                 callbacks.onTranscribed(us.getUser(), results.get(0).getAlternatives(0).getTranscript());

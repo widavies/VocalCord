@@ -280,9 +280,7 @@ public class VocalCord {
     // TODO
     // cheetah voice detection engine
     // continuation phrase
-    // partial commands with number arguments and such
     // blend multiplexer
-    // starts with phrases
     // include documentation about disconnecting the bot
     // fix timings a bit
 }
