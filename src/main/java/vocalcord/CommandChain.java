@@ -33,9 +33,16 @@ public class CommandChain {
 
     public static class VoiceArgument<T> {
         T argument;
+        Class<T> type;
 
-        public VoiceArgument(T argument) {
+        public VoiceArgument(Class<T> type, T argument) {
             this.argument = argument;
+            this.type = type;
+        }
+
+        public <E> E value() {
+            //noinspection unchecked
+            return (E) type.cast(argument);
         }
 
         @Override
@@ -69,6 +76,8 @@ public class CommandChain {
          * use as many of these special character sequences as you'd like. For example, "set volume to 100 and kick John" would
          * be represented as "set volume to %i and kick %s". If this command matches, your VoiceTask will be called with two
          * VoiceArguments, the first a volume integer, and the second a user to kick.
+         *
+         * Note: Only use these for very simple arguments that are 1-2 words at most!
          *
          * Disclaimer: I handle these special characters in a semi-naive way, I could use a much better implementation using neural nets or
          *             something if you're interested. Let me know if it gets any really trivial cases wrong and I hope it works decently well for you!
@@ -174,6 +183,8 @@ public class CommandChain {
         ArrayList<Param> params;
         VoiceTask task;
 
+        final ArrayList<String> tokenized = new ArrayList<>();
+
         public VoiceCommand(String phrase, VoiceTask task) {
             this.phrase = phrase;
             this.task = task;
@@ -195,6 +206,8 @@ public class CommandChain {
 
                 if(word.equals("%s") || word.equals("%i") || word.equals("%d")) {
                     params.add(new Param(tokens, i));
+                } else {
+                    tokenized.add(word);
                 }
             }
         }
@@ -212,7 +225,7 @@ public class CommandChain {
             this.transcript = transcript;
             this.command = command;
 
-            for(int i = 1; i < 6; i++) {
+            for(int i = 0; i < 1; i++) {
                 this.args = resolve(i);
 
                 if(this.args != null) {
@@ -249,6 +262,8 @@ public class CommandChain {
             ArrayList<ParamCandidate> paramCandidates = new ArrayList<>();
 
             for(int i = 0; i < tokens.size(); i++) {
+                if(command.tokenized.contains(tokens.get(i))) continue;
+
                 paramCandidates.add(new ParamCandidate(tokens.get(i), i));
             }
 
@@ -263,16 +278,17 @@ public class CommandChain {
                 // It occurs near the beginning of paramCandidates ("p" will pick the closest satisfactory parameter to the start)
                 // the types match
                 // the param's context works
+
                 for(int i = 0; i < paramCandidates.size(); i++) {
                     ParamCandidate candidate = paramCandidates.get(i);
 
                     // Do the types match?
                     if("%d".equals(p.param) && isDouble(candidate.token) && p.satisfiesContext(tokens, candidate.position, numAllowableErrors)) {
-                        args[index] = new VoiceArgument<>(Double.parseDouble(candidate.token));
+                        args[index] = new VoiceArgument<>(Double.class, Double.parseDouble(candidate.token));
                         paramCandidates.remove(i);
                         break;
                     } else if("%i".equals(p.param) && isInteger(candidate.token) && p.satisfiesContext(tokens, candidate.position, numAllowableErrors)) {
-                        args[index] = new VoiceArgument<>(Integer.parseInt(candidate.token));
+                        args[index] = new VoiceArgument<>(Integer.class, convertInteger(candidate.token));
                         paramCandidates.remove(i);
                         break;
                     } else if("%s".equals(p.param) && p.satisfiesContext(tokens, candidate.position, numAllowableErrors)) {
@@ -283,7 +299,7 @@ public class CommandChain {
                         for(int tmp = i; tmp < paramCandidates.size(); tmp++) {
                             ParamCandidate c = paramCandidates.get(tmp);
 
-                            if(p.satisfiesContext(tokens, c.position, 1) && tmp < paramCandidates.size() - (command.params.size() - index - 1)) {
+                            if(p.satisfiesContext(tokens, c.position, 0) && tmp < paramCandidates.size() - (command.params.size() - index - 1)) {
                                 sb.append(" ").append(c.token);
                                 paramCandidates.remove(tmp);
                                 tmp--;
@@ -292,7 +308,7 @@ public class CommandChain {
                             }
                         }
 
-                        args[index] = new VoiceArgument<>(sb.toString());
+                        args[index] = new VoiceArgument<>(String.class, sb.toString());
 
                         break;
                     }
@@ -314,6 +330,7 @@ public class CommandChain {
 
                 index++;
             }
+
             this.resolvedVector = new PhraseVector(resolvedPhrase);
             return args;
         }
@@ -373,7 +390,7 @@ public class CommandChain {
                 }
             }
 
-            return errors < numErrorsAllowed;
+            return errors <= numErrorsAllowed;
         }
     }
 
@@ -466,8 +483,22 @@ public class CommandChain {
     private static final Pattern R_INTEGER = Pattern.compile("^[-+]?\\d+$");
     private static final Pattern R_DOUBLE = Pattern.compile("\\d+\\.?\\d*");
 
+    private static final ArrayList<String> WORDS = new ArrayList<>();
+
+    static {
+        Collections.addAll(WORDS, "one", "two", "three", "four", "five", "six", "seven", "eight", "nine");
+    }
+
+    private static int convertInteger(String s) {
+        if(WORDS.contains(s)) {
+            return WORDS.indexOf(s) + 1;
+        } else {
+            return Integer.parseInt(s);
+        }
+    }
+
     private static boolean isInteger(String s) {
-        return R_INTEGER.matcher(s).matches();
+        return R_INTEGER.matcher(s).matches() || WORDS.contains(s);
     }
 
     private static boolean isDouble(String s) {
