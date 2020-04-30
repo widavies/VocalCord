@@ -73,7 +73,7 @@ The recommended IDE is [InteliJ IDEA](https://www.jetbrains.com/idea/download/).
       implementation 'net.dv8tion:JDA:4.1.1_136'
       implementation 'com.google.cloud:google-cloud-speech:1.22.6'
       implementation 'com.google.cloud:google-cloud-texttospeech:1.0.2'
-      implementation 'com.github.wdavies973:VocalCord:2.2'
+      implementation 'com.github.wdavies973:VocalCord:2.3'
   }
   ```
 ### Dynamic Libraries
