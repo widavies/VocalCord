@@ -87,7 +87,7 @@ public class VocalCord {
         /*
          * TTS settings
          */
-        String languageCode;
+        String languageCode = "en-US";
         boolean usingTTS, usingTTSCache;
         SsmlVoiceGender voiceGender;
         SendMultiplex sendMultiplex;
