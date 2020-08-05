@@ -88,8 +88,8 @@ VocalCord uses Porcupine for wake detection, however Porcupine does not support 
 7) You ```native``` directory should look like [this](https://imgur.com/a/tQJPF4n).
 #### Windows
 1) Create a folder with your root project directory called "native", within this create a subdirectory labeled "linux"
-2) [Download libjni_porcupine.so](https://github.com/wdavies973/VocalCord/raw/master/native/windows/libjni_porcupine.dll)
-3) [Download libpv_porcupine.so](https://github.com/Picovoice/porcupine/raw/master/lib/windows/x86_64/libpv_porcupine.dll)
+2) [Download libjni_porcupine.dll](https://github.com/wdavies973/VocalCord/raw/master/native/windows/libjni_porcupine.dll)
+3) [Download libpv_porcupine.dll](https://github.com/Picovoice/porcupine/blob/master/lib/windows/amd64/libpv_porcupine.dll)
 4) [Download porcupine_params.pv](https://github.com/Picovoice/porcupine/raw/master/lib/common/porcupine_params.pv)
 5) Move ```libjni_porcupine.so``` and ```libpv_porcupine.so``` into ```native/linux```
 6) Move ```porcupine_params.pv``` into ```native```
