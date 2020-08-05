@@ -6,7 +6,7 @@ If you find this project useful, a donation helps out a lot!
 [Donate](https://www.paypal.me/WillDaviesMN)
 
 # How does it work?
-- VocalCord is a _library_, not a standalone bot. VocalCord is built on the excellent [JDA](https://github.com/DV8FromTheWorld/JDA), providing a dead simple wrapper to receive voice transcripts and generate speech audio. VocalCord is a tool to build whatever you imagination decides.
+- VocalCord is a _library_, not a standalone bot. VocalCord is built on the excellent [JDA](https://github.com/DV8FromTheWorld/JDA), providing a dead simple wrapper to receive voice transcripts and generate speech audio. VocalCord is a tool to build whatever your imagination decides.
 - [Porcupine](https://github.com/Picovoice/porcupine) is used for wake detection, it's incredibly accurate and works consistently well.
 - [Google Speech to Text](https://cloud.google.com/speech-to-text) is used for speech recognition, it's decently fast and provides accurate transcripts.
 - [Google Text to Speech](https://cloud.google.com/text-to-speech/) is used for text to speech generation, it works great and is fast.
