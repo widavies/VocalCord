@@ -21,7 +21,7 @@ public class UserStream {
 
     private final VocalCord.Config config = VocalCord.getConfig();
 
-    private final Porcupine porcupine;
+    private Porcupine porcupine;
 
     /*
      * Converts Discord PCM to the audio format required by Porcupine
@@ -56,17 +56,20 @@ public class UserStream {
 
     public UserStream(User user) throws Exception {
         this.user = user;
-        porcupine = new Porcupine();
 
-        if(porcupine.getFrameLength() != 512 || porcupine.getSampleRate() != 16000) {
-            throw new RuntimeException("The underlying porcupine binaries do not have the expected configuration.");
+        if(!VocalCord.getConfig().captioning) {
+            porcupine = new Porcupine();
+
+            if(porcupine.getFrameLength() != 512 || porcupine.getSampleRate() != 16000) {
+                throw new RuntimeException("The underlying porcupine binaries do not have the expected configuration.");
+            }
         }
     }
 
     public void putAudio(ThreadPoolExecutor workPool, byte[] audio) {
         lastAudioReceived = System.nanoTime();
 
-        if(!awake) {
+        if(!awake && !VocalCord.getConfig().captioning) {
             try {
                 PorcupineAdapter pa = new PorcupineAdapter(audio);
                 while(pa.hasNext()) {
@@ -74,18 +77,15 @@ public class UserStream {
 
                     if(keywordIndex != -1) {
                         workPool.execute(() -> VocalCord.getConfig().callbacks.onWake(this, keywordIndex));
-
-                        awake = true;
-                        phrase = new byte[3840 * 50 * 5]; // by default, holds 5 seconds of data
-                        phraseBegun = false;
-                        lastReceivedPacket = System.nanoTime();
-                        index = 0;
+                        wakeup();
                     }
                 }
 
             } catch(Exception e) {
                 e.printStackTrace();
             }
+        } else if(!awake && VocalCord.getConfig().captioning) {
+            wakeup();
         } else {
             // Resize the array if needed
             if(index + audio.length >= phrase.length) {
@@ -105,11 +105,20 @@ public class UserStream {
         }
     }
 
+    private void wakeup() {
+        awake = true;
+        phrase = new byte[3840 * 50 * 5]; // by default, holds 5 seconds of data
+        phraseBegun = false;
+        lastReceivedPacket = System.nanoTime();
+        index = 0;
+    }
+
     boolean readyForTranscription() {
         if(!awake) return false;
 
         // if no packet received in last 2 seconds & phraseBegun, then transcribe
-        // if no packet received in last 5 seconds & !phraseBegun, then transcribe
+        // if no packet received in last 5 seconds & !phraseBegun, then don't transcribe
+        // if captioning, transcribe every 5 minutes anyway
         // if certain limit reached (15 seconds), transcribe
         // future: trailing audio volume is 30% or something less than the average of the whole
 
@@ -120,6 +129,8 @@ public class UserStream {
         } else if(!phraseBegun && elapsedMs >= config.postWakeLimit) {
             sleep();
             return false; // user never started talking after waking bot
+        } else if(phraseBegun && VocalCord.getConfig().captioning && phrase.length > 3840 * 50 * VocalCord.getConfig().captioningChunkSize) {
+            return true;
         } else if(phrase.length > 3840 * 50 * config.maxPhraseTime) {
             return true;
         }
@@ -141,7 +152,9 @@ public class UserStream {
 
         try {
             AudioFormat target = new AudioFormat(16000f, 16, 1, true, false);
-            AudioInputStream is = AudioSystem.getAudioInputStream(target, new AudioInputStream(new ByteArrayInputStream(phrase), AudioReceiveHandler.OUTPUT_FORMAT, phrase.length));
+            AudioInputStream is = AudioSystem.getAudioInputStream(target,
+                    new AudioInputStream(new ByteArrayInputStream(phrase), AudioReceiveHandler.OUTPUT_FORMAT,
+                            phrase.length));
 
             return is.readAllBytes();
         } catch(Exception e) {

@@ -12,6 +12,8 @@ import vocalcord.CommandChain;
 import vocalcord.UserStream;
 import vocalcord.VocalCord;
 
+import java.util.ArrayList;
+
 public class ExampleBot extends ListenerAdapter implements VocalCord.Callbacks {
 
     private final VocalCord cord;
@@ -23,9 +25,14 @@ public class ExampleBot extends ListenerAdapter implements VocalCord.Callbacks {
          */
 
         // Windows
-        cord = VocalCord.newConfig(this).withWakeDetection("C:\\Users\\wdavi\\IdeaProjects\\VocalCord\\native\\windows\\libjni_porcupine.dll",
-                "C:\\Users\\wdavi\\IdeaProjects\\VocalCord\\native\\windows\\libpv_porcupine.dll", "C:\\Users\\wdavi\\IdeaProjects\\VocalCord\\native\\porcupine_params.pv",
-                0.5f, "C:\\Users\\wdavi\\IdeaProjects\\VocalCord\\phrases\\hey_cord.ppn").withTTS(SsmlVoiceGender.MALE, true).build();
+//        cord = VocalCord.newConfig(this).withWakeDetection("C:\\Users\\wdavi\\IdeaProjects\\VocalCord\\native\\windows\\libjni_porcupine.dll",
+//                "C:\\Users\\wdavi\\IdeaProjects\\VocalCord\\native\\windows\\libpv_porcupine.dll", "C:\\Users\\wdavi\\IdeaProjects\\VocalCord\\native\\porcupine_params.pv",
+//                0.5f, "C:\\Users\\wdavi\\IdeaProjects\\VocalCord\\phrases\\windows.ppn").withTTS(SsmlVoiceGender.MALE,
+//                true).build();
+
+        // Windows (with closed captioning instead of wake detection)
+        cord = VocalCord.newConfig(this).withClosedCaptioning().withTTS(SsmlVoiceGender.MALE,
+                true).build();
 
         // Linux (using WSL)
 //        cord = VocalCord.newConfig(this).withWakeDetection("/mnt/c/Users/wdavi/IdeaProjects/VocalCord/native/linux/libjni_porcupine.so",
@@ -109,7 +116,6 @@ public class ExampleBot extends ListenerAdapter implements VocalCord.Callbacks {
             try {
                 VoiceChannel authorVoiceChannel = event.getMember().getVoiceState().getChannel();
                 cord.connect(authorVoiceChannel);
-
             } catch(Exception e) {
                 e.printStackTrace();
             }

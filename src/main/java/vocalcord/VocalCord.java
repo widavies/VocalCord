@@ -2,9 +2,12 @@ package vocalcord;
 
 import com.google.cloud.texttospeech.v1beta1.SsmlVoiceGender;
 import net.dv8tion.jda.api.audio.AudioSendHandler;
+import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.managers.AudioManager;
+
+import java.util.ArrayList;
 
 /**
  * This is the main class you will use to interact with VocalCord
@@ -83,6 +86,12 @@ public class VocalCord {
         public String porcupineParams;
         public String[] wakePhrasePaths;
         public float sensitivity;
+
+        /*
+         * Captioning
+         */
+        public boolean captioning;
+        public int captioningChunkSize = 5;
 
         /*
          * TTS settings
@@ -167,6 +176,31 @@ public class VocalCord {
             this.sensitivity = sensitivity;
             this.porcupineParams = porcupineParams;
             this.wakePhrasePaths = wakePhrasePaths;
+            this.captioning = false;
+            return this;
+        }
+
+        /**
+         * An alternative to wake detection, instead the bot will always be
+         * transcribing. This will disable wake detection. Using wake detection
+         * will disable closed captioning.
+         */
+        public Config withClosedCaptioning() {
+            captioning = true;
+            return this;
+        }
+
+        /**
+         *  An alternative to wake detection, instead the bot will always be
+         *  transcribing. This will disable wake detection. Using wake detection
+         *  will disable closed captioning.
+         * @param chunkSize If a user is speaking, what size (in seconds) of chunks should their
+         *                  transcripts be broken up into. 5 is a good value.
+         * @return chunkSize
+         */
+        public Config withClosedCaptioning(int chunkSize) {
+            captioning = true;
+            captioningChunkSize = chunkSize;
             return this;
         }
 

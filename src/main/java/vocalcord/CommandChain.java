@@ -19,7 +19,6 @@ public class CommandChain {
     private final ArrayList<VoiceCommand> commands = new ArrayList<>();
     private VoiceTask fallback;
 
-
     public interface VoiceTask {
         /**
          * This task is run when a voice command is detected

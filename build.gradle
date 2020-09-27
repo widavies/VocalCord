@@ -17,7 +17,7 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
     compile fileTree(dir: 'libs', include: ['*.jar'])
 
-    implementation 'net.dv8tion:JDA:4.1.1_136'
+    implementation 'net.dv8tion:JDA:4.2.0_204'
     implementation 'com.google.cloud:google-cloud-speech:1.22.6'
     implementation 'com.google.cloud:google-cloud-texttospeech:1.0.2'
 }
