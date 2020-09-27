@@ -48,8 +48,10 @@ class TTSEngine implements AudioSendHandler {
             byte[] pcm = audioContents.toByteArray();
 
             // Three things need to happen - big endian, stereo, pad to a multiple of 3840
-            byte[] converted = new byte[pcm.length * 2 + (AUDIO_FRAME - pcm.length * 2 % AUDIO_FRAME)]; // ensures converted is a multiple of AUDIO_FRAME
-            for(int i = 0; i < pcm.length; i += 2) {
+            // Add a frame of silence at the beginning so that the sound doesn't clip weirdly
+            byte[] converted = new byte[AUDIO_FRAME + pcm.length * 2 + (AUDIO_FRAME - pcm.length * 2 % AUDIO_FRAME)];
+            // ensures converted is a multiple of AUDIO_FRAME
+            for(int i = AUDIO_FRAME; i < pcm.length; i += 2) {
                 short reversed = Short.reverseBytes((short) ((pcm[i] << 8) | (pcm[i + 1] & 0xFF)));
                 byte low = (byte) (reversed >> 8);
                 byte high = (byte) (reversed & 0x00FF);
@@ -66,6 +68,8 @@ class TTSEngine implements AudioSendHandler {
     }
 
     void say(String phrase) throws Exception {
+        this.index = Integer.MAX_VALUE;
+
         if(ttsCache != null) {
             TTSCache.CacheResponse response = ttsCache.checkCache(phrase);
 

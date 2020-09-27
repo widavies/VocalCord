@@ -32,7 +32,7 @@ public class ExampleBot extends ListenerAdapter implements VocalCord.Callbacks {
 
         // Windows (with closed captioning instead of wake detection)
         cord = VocalCord.newConfig(this).withClosedCaptioning().withTTS(SsmlVoiceGender.MALE,
-                true).build();
+                false).build();
 
         // Linux (using WSL)
 //        cord = VocalCord.newConfig(this).withWakeDetection("/mnt/c/Users/wdavi/IdeaProjects/VocalCord/native/linux/libjni_porcupine.so",
