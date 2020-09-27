@@ -6,7 +6,7 @@ If you find this project useful, a donation helps out a lot!
 [Donate](https://www.paypal.me/WillDaviesMN)
 
 # How does it work?
-- VocalCord is a _library_, not a standalone bot. VocalCord is built on the excellent [JDA](https://github.com/DV8FromTheWorld/JDA), providing a dead simple wrapper to receive voice transcripts and generate speech audio. VocalCord is a tool to build whatever you imagination decides.
+- VocalCord is a _library_, not a standalone bot. VocalCord is built on the excellent [JDA](https://github.com/DV8FromTheWorld/JDA), providing a dead simple wrapper to receive voice transcripts and generate speech audio. VocalCord is a tool to build whatever your imagination decides.
 - [Porcupine](https://github.com/Picovoice/porcupine) is used for wake detection, it's incredibly accurate and works consistently well.
 - [Google Speech to Text](https://cloud.google.com/speech-to-text) is used for speech recognition, it's decently fast and provides accurate transcripts.
 - [Google Text to Speech](https://cloud.google.com/text-to-speech/) is used for text to speech generation, it works great and is fast.
@@ -73,7 +73,7 @@ The recommended IDE is [InteliJ IDEA](https://www.jetbrains.com/idea/download/).
       implementation 'net.dv8tion:JDA:4.1.1_136'
       implementation 'com.google.cloud:google-cloud-speech:1.22.6'
       implementation 'com.google.cloud:google-cloud-texttospeech:1.0.2'
-      implementation 'com.github.wdavies973:VocalCord:2.2'
+      implementation 'com.github.wdavies973:VocalCord:2.3'
   }
   ```
 ### Dynamic Libraries
@@ -88,8 +88,8 @@ VocalCord uses Porcupine for wake detection, however Porcupine does not support 
 7) You ```native``` directory should look like [this](https://imgur.com/a/tQJPF4n).
 #### Windows
 1) Create a folder with your root project directory called "native", within this create a subdirectory labeled "linux"
-2) [Download libjni_porcupine.so](https://github.com/wdavies973/VocalCord/raw/master/native/windows/libjni_porcupine.dll)
-3) [Download libpv_porcupine.so](https://github.com/Picovoice/porcupine/raw/master/lib/windows/x86_64/libpv_porcupine.dll)
+2) [Download libjni_porcupine.dll](https://github.com/wdavies973/VocalCord/raw/master/native/windows/libjni_porcupine.dll)
+3) [Download libpv_porcupine.dll](https://github.com/Picovoice/porcupine/raw/master/lib/windows/amd64/libpv_porcupine.dll)
 4) [Download porcupine_params.pv](https://github.com/Picovoice/porcupine/raw/master/lib/common/porcupine_params.pv)
 5) Move ```libjni_porcupine.so``` and ```libpv_porcupine.so``` into ```native/linux```
 6) Move ```porcupine_params.pv``` into ```native```
