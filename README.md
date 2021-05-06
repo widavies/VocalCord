@@ -4,7 +4,7 @@ Giving Discord bots a voice with speech recognition and text to speech.
 # Future plans (help wanted)
 I'd like to create a "no code needed" version of this project, because as you may be able to tell, the manual setup described in this README is not exactly a cake walk.
 Specifically, I'd like to create a service that handles hosting, Google Speech-To-Text, and Porcupine (wakeword detection) for you.
-The service would have to be paid (something like $10/mo) because voice Google STT, hosting, and Porcupine all cost money.
+The service would have to be paid (something like $10/mo) because Google STT, hosting, and Porcupine all cost money.
 
 I don't want to get started on this until I know there is sufficient demand for it. I've created a [discussion thread](https://github.com/widavies/VocalCord/discussions/12#discussion-3354581) for this.
 
